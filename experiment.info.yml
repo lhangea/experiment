@@ -1,4 +1,4 @@
 name: Experiment
-description: 'Allows administrators to create experiments using multi-armed bandit algorithms.'
+description: 'Allows administrators to create experiment using multi-armed bandit algorithms.'
 type: module
 core: 8.x

@@ -1,0 +1,7 @@
+experiment.admin_display:
+  path: '/admin/structure/experiment'
+  defaults:
+    _controller: '\Drupal\experiment\Controller\ExperimentsController::listing'
+    _title: 'Experiments'
+  requirements:
+    _permission: 'access content'
