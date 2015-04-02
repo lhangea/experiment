@@ -1,0 +1,5 @@
+experiment.add_action:
+  route_name: experiment.add_page
+  title: 'Add new experiment'
+  appears_on:
+    - experiment.admin_display
