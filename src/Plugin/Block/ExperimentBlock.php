@@ -33,9 +33,11 @@ class ExperimentBlock extends BlockBase {
    * {@inheritdoc}
    */
   function blockForm($form, FormStateInterface $form_state) {
+    // @todo This needs to be replaced with actual experiment config entities.
+    // @todo Remove from the list the already started experiments.
     $options = array(
-      $this->t('Nice Block'),
-      $this->t('Even nicer Block'),
+      $this->t('Experiment 1'),
+      $this->t('Experiment 2'),
     );
 
     $form['experiment'] = array(
@@ -44,20 +46,11 @@ class ExperimentBlock extends BlockBase {
       '#open' => TRUE,
     );
 
-    $form['experiment']['name'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Name'),
-      '#size' => 60,
-      '#maxlength' => 128,
-      '#required' => TRUE,
-    );
-
-    $form['experiment']['blocks'] = array(
+    $form['experiment']['block'] = array(
       '#type' => 'select',
       '#title' => t('Selected'),
       '#options' => $options,
-      '#multiple' => TRUE,
-      '#description' => t('Select blocks that are part of this experiment.'),
+      '#description' => t('Select experiment to associate with this block.'),
     );
 
     return $form;
@@ -67,6 +60,6 @@ class ExperimentBlock extends BlockBase {
    * {@inheritdoc}
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
-    $this->configuration['block_mode'] = $form_state->getValue('book_block_mode');
+    $this->configuration['experiment']['uuid'] = $form_state->getValue(['experiment', 'block']);
   }
 }
