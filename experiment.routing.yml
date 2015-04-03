@@ -5,3 +5,12 @@ experiment.admin_display:
     _title: 'Experiments'
   requirements:
     _permission: 'access content'
+
+experiment.add_page:
+  path: '/admin/structure/experiment/add'
+  defaults:
+    _controller: '\Drupal\experiment\Controller\ExperimentsController::add'
+    _title: 'Add Experiment'
+  requirements:
+    _permission: 'access content'
+

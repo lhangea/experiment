@@ -34,9 +34,8 @@ class ExperimentBlock extends BlockBase {
    */
   function blockForm($form, FormStateInterface $form_state) {
     $options = array(
-      'block1' => $this->t('Nice Block'),
-      'block2' => $this->t('Even nicer Block'),
-      'block3' => $this->t('Random Block'),
+      $this->t('Nice Block'),
+      $this->t('Even nicer Block'),
     );
 
     $form['experiment'] = array(
