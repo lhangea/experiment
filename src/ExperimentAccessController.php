@@ -27,8 +27,7 @@ class ExperimentAccessController extends EntityAccessControlHandler {
 //    }
     // Other than the view operation, we're going to be insanely lax about
     // access. Don't try this at home!
-//    return parent::checkAccess($entity, $operation, $langcode, $account);
-    return TRUE;
+    return parent::checkAccess($entity, $operation, $langcode, $account);
   }
 
 }

@@ -27,7 +27,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   label = @Translation("Experiment"),
  *   admin_permission = "access content",
  *   handlers = {
- *     "access" = "Drupal\experiments\ExperimentAccessController",
+ *     "access" = "Drupal\experiment\ExperimentAccessController",
  *     "list_builder" = "Drupal\experiment\Controller\ExperimentListBuilder",
  *     "form" = {
  *       "add" = "Drupal\experiment\Form\ExperimentAddForm",
