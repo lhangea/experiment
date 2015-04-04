@@ -1,5 +1,5 @@
 experiment.add_action:
-  route_name: experiment.add_page
+  route_name: entity.experiment.add_form
   title: 'Add new experiment'
   appears_on:
-    - experiment.admin_display
+    - entity.experiment.list

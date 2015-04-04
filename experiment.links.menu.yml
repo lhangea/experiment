@@ -1,5 +1,5 @@
-experiment.admin_display:
+entity.experiment.list:
   title: 'Experiments'
   parent: system.admin_structure
-  description: 'Manage experiment.'
-  route_name: experiment.admin_display
+  description: 'Manage experiments.'
+  route_name: entity.experiment.list
