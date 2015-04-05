@@ -40,8 +40,8 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *     "label" = "label"
  *   },
  *   links = {
- *     "edit-form" = "/experiment/config_entity_example/manage/{experiment}",
- *     "delete-form" = "/experiment/config_entity_example/manage/{experiment}/delete"
+ *     "edit-form" = "/admin/structure/experiment/manage/{experiment}",
+ *     "delete-form" = "/admin/structure/experiment/manage/{experiment}/delete"
  *   }
  * )
  */

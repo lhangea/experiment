@@ -33,12 +33,10 @@ class ExperimentBlock extends BlockBase {
    * {@inheritdoc}
    */
   function blockForm($form, FormStateInterface $form_state) {
-    // @todo This needs to be replaced with actual experiment config entities.
-    // @todo Remove from the list the already started experiments.
-    $options = array(
-      $this->t('Experiment 1'),
-      $this->t('Experiment 2'),
-    );
+    // @todo Inject the service and send uuids instead of the id of the experiment
+    $query = \Drupal::entityQuery('experiment');
+    $options = $query
+      ->execute();
 
     $form['experiment'] = array(
       '#type' => 'details',
