@@ -111,10 +111,10 @@ class ExperimentFormBase extends EntityForm {
     $form['blocks'] = array(
       '#type' => 'select',
       '#title' => $this->t('Blocks'),
-      '#options' => array(
-        'block1' => $this->t('Block 1'),
-        'block2' => $this->t('Block 2'),
-      ),
+      '#options' => [
+        $this->t('Block 1'),
+        $this->t('Block 2'),
+      ],
       '#default_value' => array_keys($experiment->getBlocks()),
       '#multiple' => TRUE,
     );
