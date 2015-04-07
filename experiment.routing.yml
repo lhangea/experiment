@@ -41,7 +41,7 @@ entity.experiment.delete_form:
     _admin_route: TRUE
 
 experiment.select:
-  path: '/experiment/{experiment_id}'
+  path: '/experiments/{experiment_id}'
   defaults:
     _controller: '\Drupal\experiment\Controller\ExperimentController::selectArm'
   requirements:

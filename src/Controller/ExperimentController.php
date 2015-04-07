@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ExperimentController {
 
-  // @todo maybe use automatic parameter conversion for Experiment entity.
+  // @todo Maybe use automatic parameter conversion for Experiment entity.
   public function selectArm($experiment_id) {
 
     // @todo Inject the service.
@@ -22,6 +22,8 @@ class ExperimentController {
     $blocks = $experiment->getBlocks();
 
     $response = new Response();
+    // @todo Based on the selected algorithm select one entry from the $block
+    //   array, render it's content and return the html.
     $response->setContent(json_encode(array(
       'html' => 'Block content for block: ' . $blocks[rand(0, 1)],
     )));

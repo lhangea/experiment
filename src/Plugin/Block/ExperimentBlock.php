@@ -24,12 +24,17 @@ class ExperimentBlock extends BlockBase {
    * {@inheritdoc}
    */
   public function build() {
+    $build = [
+      '#attached' => [
+        'drupalSettings' => [
+          'experiment_id' => $this->configuration['experiment']['id'],
+        ],
+        'library' => ['experiment/experiment.block'],
+      ],
+    ];
+    $build['#attributes']['class'][] = $this->configuration['experiment']['id'];
 
-    $this->configuration['experiment']['id'];
-
-    return array(
-      '#markup' => $this->t('This is a place holder for the blocks associated with this experiment.'),
-    );
+    return $build;
   }
 
   /**

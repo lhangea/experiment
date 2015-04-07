@@ -1,0 +1,3 @@
+experiment.block:
+  js:
+    js/experiment.js: {}
