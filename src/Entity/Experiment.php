@@ -8,12 +8,11 @@
 namespace Drupal\experiment\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBase;
+use Drupal\experiment\ExperimentInterface;
 
 /**
  * Defines the experiment config entity.
  *
- *    - list_builder: The class that provides listings of the entity.
- *    - form: An array of entity form classes keyed by their operation.
  *  - entity_keys: Specifies the class properties in which unique keys are
  *    stored for this entity type. Unique keys are properties which you know
  *    will be unique, and which the entity manager can use as unique in database
@@ -45,7 +44,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   }
  * )
  */
-class Experiment extends ConfigEntityBase {
+class Experiment extends ConfigEntityBase implements ExperimentInterface {
 
   /**
    * The experiment ID.
@@ -55,13 +54,6 @@ class Experiment extends ConfigEntityBase {
   public $id;
 
   /**
-   * The experiment UUID.
-   *
-   * @var string
-   */
-  public $uuid;
-
-  /**
    * The experiment label.
    *
    * @var string
@@ -69,9 +61,51 @@ class Experiment extends ConfigEntityBase {
   public $label;
 
   /**
-   * The experiment floopy flag.
+   * The array of blocks involved in this experiment.
+   *
+   * @var array
+   */
+  public $blocks = array();
+
+  /**
+   * The id of the algorithm used by an experiment.
    *
    * @var string
    */
-  public $floopy;
+  public $algorithm;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getBlocks() {
+    return $this->blocks;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setBlocks(array $blocks) {
+    $this->blocks = $blocks;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getAlgorithm() {
+    return $this->algorithm;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setAlgorithm($algorithm) {
+    $this->algorithm = $algorithm;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addBlock($block) {
+    $this->blocks[] = $block;
+  }
 }

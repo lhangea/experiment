@@ -20,6 +20,12 @@ experiment.experiment.*:
     label:
       type: label
       label: 'Label'
-    floopy:
-      type: boolean
-      label: 'Floopy'
+    algorithm:
+      type: string
+      label: 'Algorithm'
+    blocks:
+      type: sequence
+      label: 'Blocks'
+      sequence:
+        - type: string
+          label: 'Block plugin id'

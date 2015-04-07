@@ -9,6 +9,7 @@ namespace Drupal\experiment\Controller;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\experiment\ExperimentInterface;
 
 /**
  * Provides a listing of experiment entities.
@@ -26,14 +27,15 @@ class ExperimentListBuilder extends ConfigEntityListBuilder {
   public function buildHeader() {
     $header['label'] = $this->t('Experiment');
     $header['machine_name'] = $this->t('Machine Name');
-    $header['floopy'] = $this->t('Floopy');
+    $header['algorithm'] = $this->t('Algorithm');
+    $header['blocks'] = $this->t('Blocks');
     return $header + parent::buildHeader();
   }
 
   /**
    * Builds a row for an entity in the entity listing.
    *
-   * @param EntityInterface $entity
+   * @param ExperimentInterface $entity
    *   The entity for which to build the row.
    *
    * @return array
@@ -41,10 +43,12 @@ class ExperimentListBuilder extends ConfigEntityListBuilder {
    *
    * @see Drupal\Core\Entity\EntityListController::render()
    */
-  public function buildRow(EntityInterface $entity) {
+  public function buildRow(ExperimentInterface $entity) {
     $row['label'] = $this->getLabel($entity);
     $row['machine_name'] = $entity->id();
-    $row['floopy'] = $entity->floopy;
+    $row['algorithm'] = $entity->getAlgorithm();
+    // @todo UX improvements needed.
+    $row['blocks'] = implode(", ", $entity->getBlocks());
 
     return $row + parent::buildRow($entity);
   }
@@ -56,16 +60,9 @@ class ExperimentListBuilder extends ConfigEntityListBuilder {
    *   Renderable array.
    */
   public function render() {
-    $build['description'] = array(
-      '#markup' => $this->t("<p>The Experiment module defines an"
-        . " Experiment entity type. This is a list of the Experiment entities currently"
-        . " in your Drupal site.</p><p>By default, when you enable this"
-        . " module, one entity is created from configuration. This is why we"
-        . " call them Config Entities. Marvin, the paranoid android, is created"
-        . " in the database when the module is enabled.</p><p>You can view a"
-        . " list of Experiments here. You can also use the 'Operations' column to"
-        . " edit and delete Experiments.</p>"),
-    );
+    $build['description'] = [
+      '#markup' => $this->t("<p>This will be help text.</p>"),
+    ];
     $build[] = parent::render();
     return $build;
   }

@@ -71,7 +71,7 @@ class ExperimentFormBase extends EntityForm {
    *
    * @param array $form
    *   An associative array containing the structure of the form.
-   * @param array $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   An associative array containing the current state of the form.
    *
    * @return array
@@ -87,7 +87,6 @@ class ExperimentFormBase extends EntityForm {
     // class of our entity. Drupal knows which class to call from the
     // annotation on our Experiment class.
     $experiment = $this->entity;
-
     // Build the form.
     $form['label'] = array(
       '#type' => 'textfield',
@@ -107,10 +106,27 @@ class ExperimentFormBase extends EntityForm {
       ),
       '#disabled' => !$experiment->isNew(),
     );
-    $form['floopy'] = array(
-      '#type' => 'checkbox',
-      '#title' => $this->t('Floopy'),
-      '#default_value' => $experiment->floopy,
+    // @todo Replace with list of block plugins.
+    // @todo Improve the UX for adding blocks and selecting the view modes.
+    $form['blocks'] = array(
+      '#type' => 'select',
+      '#title' => $this->t('Blocks'),
+      '#options' => array(
+        'block1' => $this->t('Block1'),
+        'block2' => $this->t('Block2'),
+      ),
+      '#default_value' => array_keys($experiment->getBlocks()),
+      '#multiple' => TRUE,
+    );
+    // @todo Replace with list of algorithm plugins.
+    $form['algorithm'] = array(
+      '#type' => 'select',
+      '#title' => $this->t('Algorithm'),
+      '#options' => array(
+        'algorithm1' => $this->t('Algorithm1'),
+        'algorithm2' => $this->t('Algorithm2'),
+      ),
+      '#default_value' => $experiment->getAlgorithm(),
     );
 
     // Return the form.
