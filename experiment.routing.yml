@@ -39,3 +39,10 @@ entity.experiment.delete_form:
     _permission: 'access content'
   options:
     _admin_route: TRUE
+
+experiment.blocks:
+  path: '/experiment/block/{block_id}'
+  defaults:
+    _controller: '\Drupal\experiment\Controller\ExperimentsController::getBlock'
+  requirements:
+    _permission: 'access content'

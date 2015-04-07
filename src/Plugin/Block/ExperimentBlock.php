@@ -11,7 +11,7 @@ use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Provides an 'Start a new experiment' block.
+ * Provides a 'Start a new experiment' block.
  *
  * @Block(
  *   id = "experiment_block",
@@ -24,6 +24,9 @@ class ExperimentBlock extends BlockBase {
    * {@inheritdoc}
    */
   public function build() {
+
+    $this->configuration['experiment']['id'];
+
     return array(
       '#markup' => $this->t('This is a place holder for the blocks associated with this experiment.'),
     );
@@ -33,7 +36,7 @@ class ExperimentBlock extends BlockBase {
    * {@inheritdoc}
    */
   function blockForm($form, FormStateInterface $form_state) {
-    // @todo Inject the service and send uuids instead of the id of the experiment
+    // @todo Inject the service.
     $query = \Drupal::entityQuery('experiment');
     $options = $query
       ->execute();
@@ -49,6 +52,7 @@ class ExperimentBlock extends BlockBase {
       '#title' => t('Selected'),
       '#options' => $options,
       '#description' => t('Select experiment to associate with this block.'),
+      '#default_value' => $this->configuration['experiment']['id'],
     );
 
     return $form;
@@ -58,6 +62,6 @@ class ExperimentBlock extends BlockBase {
    * {@inheritdoc}
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
-    $this->configuration['experiment']['uuid'] = $form_state->getValue(['experiment', 'block']);
+    $this->configuration['experiment']['id'] = $form_state->getValue(['experiment', 'block']);
   }
 }

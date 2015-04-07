@@ -1,17 +1,20 @@
 <?php
 
+
+
 namespace Drupal\experiment\Controller;
 
-class ExperimentsController {
-  public function listing() {
-    return [
-      '#markup' => 'This is really an experiment.'
-    ];
-  }
+use Symfony\Component\HttpFoundation\Response;
 
-  public function add() {
-    return [
-      '#markup' => 'A new experiment can be added from this page.'
-    ];
+class ExperimentsController {
+
+  public function getBlock($block_id) {
+    $response = new Response();
+    $response->setContent(json_encode(array(
+      'html' => 'Block content for id: ' . $block_id,
+    )));
+    $response->headers->set('Content-Type', 'application/json');
+
+    return $response;
   }
 }
