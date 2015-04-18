@@ -18,6 +18,7 @@ class ExperimentController {
       ->getStorage('experiment');
 
     $experiment = $storage->load($experiment_id);
+    dsm($experiment->getAlgorithm());
 
     $blocks = $experiment->getBlocks();
 
