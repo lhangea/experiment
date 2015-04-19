@@ -11,6 +11,7 @@ use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\experiment\MABAlgorithmManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -38,6 +39,11 @@ class ExperimentFormBase extends EntityForm {
   protected $blockManager;
 
   /**
+   * @var \Drupal\experiment\MABAlgorithmManager
+   */
+  protected $mabAlgorithmManager;
+
+  /**
    * Construct the ExperimentFormBase.
    *
    * For simple entity forms, there's no need for a constructor. Our experiment form
@@ -49,10 +55,13 @@ class ExperimentFormBase extends EntityForm {
    *   An entity query factory for the experiment entity type.
    * @param \Drupal\Core\Block\BlockManagerInterface $block_manager
    *   The block manager.
+   * @param \Drupal\experiment\MABAlgorithmManager $mabAlgorithmManager
+   *   Multi armed bandit algorithm manager.
    */
-  public function __construct(QueryFactory $query_factory, BlockManagerInterface $block_manager) {
+  public function __construct(QueryFactory $query_factory, BlockManagerInterface $block_manager, MABAlgorithmManager $mabAlgorithmManager) {
     $this->entityQueryFactory = $query_factory;
     $this->blockManager = $block_manager;
+    $this->mabAlgorithmManager = $mabAlgorithmManager;
   }
 
   /**
@@ -72,7 +81,8 @@ class ExperimentFormBase extends EntityForm {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity.query'),
-      $container->get('plugin.manager.block')
+      $container->get('plugin.manager.block'),
+      $container->get('plugin.manager.mab_algorithm')
     );
   }
 
@@ -129,23 +139,28 @@ class ExperimentFormBase extends EntityForm {
     }
 
     // @todo Investigate why the block array is saved like this.
-    $form['blocks'] = array(
+    $form['blocks'] = [
       '#type' => 'select',
       '#title' => $this->t('Blocks'),
       '#options' => $blocks,
       '#default_value' => array_keys($experiment->getBlocks()),
       '#multiple' => TRUE,
-    );
-    // @todo Replace with list of algorithm plugins.
-    $form['algorithm'] = array(
+    ];
+
+    // Get a list of all algorithm plugins.
+    $algorithms = array();
+    $algorithm_definitions = $this->mabAlgorithmManager->getDefinitions();
+
+    foreach($algorithm_definitions as $plugin_id => $plugin_definition) {
+      $algorithms[$plugin_id] = $plugin_definition['label'];
+    }
+
+    $form['algorithm'] = [
       '#type' => 'select',
       '#title' => $this->t('Algorithm'),
-      '#options' => array(
-        'epsilon_greedy' => $this->t('Epsilon greedy'),
-        'algorithm2' => $this->t('Algorithm2'),
-      ),
+      '#options' => $algorithms,
       '#default_value' => $experiment->getAlgorithm(),
-    );
+    ];
 
     // Return the form.
     return $form;
