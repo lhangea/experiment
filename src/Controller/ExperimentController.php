@@ -24,8 +24,10 @@ class ExperimentController {
     $algorithm = $mabAlgorithmManager->createInstance($experiment->getAlgorithm());
 
     $response = new Response();
+    $blockManager = \Drupal::getContainer()->get('plugin.manager.block');
+    $block = $blockManager->createInstance($algorithm->select());
     $response->setContent(json_encode(array(
-      'html' => 'Block content for block: ' . $algorithm->select(),
+      'html' => \Drupal::service('renderer')->render($block->build()),
     )));
     $response->headers->set('Content-Type', 'application/json');
 
