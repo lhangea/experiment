@@ -12,6 +12,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\PluginBase;
 use Drupal\Core\Plugin\PluginFormInterface;
 
+/**
+ * @todo create an interface containing all other three interfaces.
+ */
 abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterface, ConfigurablePluginInterface, PluginFormInterface {
 
   /**
@@ -22,6 +25,29 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
    */
   public function getRand() {
     return mt_rand() / mt_getrandmax();
+  }
+
+  /**
+   * Finds the index of the maximum key form the an array.
+   *
+   * @param array
+   *   Array containing key value pairs.
+   *
+   * @return string
+   *   The key of the max value from the array.
+   */
+  function getIndMax($array) {
+    $max_key = -1;
+    $max_val = -1;
+
+    foreach ($array as $key => $value) {
+      if ($value > $max_val) {
+        $max_key = $key;
+        $max_val = $value;
+      }
+    }
+
+    return $max_key;
   }
 
   /**

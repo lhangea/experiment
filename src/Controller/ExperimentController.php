@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ExperimentController {
 
-  // @todo Maybe use automatic parameter conversion for Experiment entity.
+  // @todo Use automatic parameter conversion for Experiment entity.
   public function selectArm($experiment_id) {
 
     // @todo Inject the service.
@@ -18,15 +18,14 @@ class ExperimentController {
       ->getStorage('experiment');
 
     $experiment = $storage->load($experiment_id);
-    dsm($experiment->getAlgorithm());
-
-    $blocks = $experiment->getBlocks();
+    $mabAlgorithmManager = \Drupal::getContainer()->get('plugin.manager.mab_algorithm');
+    // @todo Here we need to pass in the algorithm configuration for this
+    //   specific experiment.
+    $algorithm = $mabAlgorithmManager->createInstance($experiment->getAlgorithm());
 
     $response = new Response();
-    // @todo Based on the selected algorithm select one entry from the $block
-    //   array, render it's content and return the html.
     $response->setContent(json_encode(array(
-      'html' => 'Block content for block: ' . $blocks[rand(0, 1)],
+      'html' => 'Block content for block: ' . $algorithm->select(),
     )));
     $response->headers->set('Content-Type', 'application/json');
 

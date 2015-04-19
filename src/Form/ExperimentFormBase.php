@@ -112,8 +112,8 @@ class ExperimentFormBase extends EntityForm {
       '#type' => 'select',
       '#title' => $this->t('Blocks'),
       '#options' => [
-        $this->t('Block 1'),
-        $this->t('Block 2'),
+        'block1' => $this->t('Block 1'),
+        'block2' => $this->t('Block 2'),
       ],
       '#default_value' => array_keys($experiment->getBlocks()),
       '#multiple' => TRUE,
@@ -123,7 +123,7 @@ class ExperimentFormBase extends EntityForm {
       '#type' => 'select',
       '#title' => $this->t('Algorithm'),
       '#options' => array(
-        'algorithm1' => $this->t('Algorithm1'),
+        'epsilon_greedy' => $this->t('Epsilon greedy'),
         'algorithm2' => $this->t('Algorithm2'),
       ),
       '#default_value' => $experiment->getAlgorithm(),
@@ -232,6 +232,7 @@ class ExperimentFormBase extends EntityForm {
     }
     else {
       // If we created a new entity...
+      \Drupal::state()->set('experiment.' . $experiment->id(), array_fill_keys($experiment->getBlocks(), 0));
       drupal_set_message($this->t('Experiment %label has been added.', array('%label' => $experiment->label())));
       $this->logger('contact')->notice('Experiment %label has been added.', ['%label' => $experiment->label(), 'link' => $edit_link]);
     }
