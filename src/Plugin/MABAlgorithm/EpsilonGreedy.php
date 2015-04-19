@@ -27,12 +27,10 @@ class EpsilonGreedy extends MABAlgorithmBase {
     $values = \Drupal::state()->get('experiment.first_experiment');
     // Exploit (use the best known variation).
     if ($this->getRand() > 0.5) {
-      dsm('from exploitation');
       return $this->getIndMax($values);
     }
     // Explore (select a random variation).
     else {
-      dsm('from exploration');
       return array_rand($values);
     }
   }

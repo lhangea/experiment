@@ -46,8 +46,10 @@ class ExperimentListBuilder extends ConfigEntityListBuilder {
   public function buildRow(ExperimentInterface $entity) {
     $row['label'] = $this->getLabel($entity);
     $row['machine_name'] = $entity->id();
+    // @todo Display label instead.
     $row['algorithm'] = $entity->getAlgorithm();
     // @todo UX improvements needed.
+    // @todo Will be changed.
     $row['blocks'] = implode(", ", $entity->getBlocks());
 
     return $row + parent::buildRow($entity);

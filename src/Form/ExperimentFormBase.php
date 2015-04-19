@@ -7,6 +7,7 @@
 
 namespace Drupal\experiment\Form;
 
+use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\Form\FormStateInterface;
@@ -32,6 +33,11 @@ class ExperimentFormBase extends EntityForm {
   protected $entityQueryFactory;
 
   /**
+   * @var \Drupal\Core\Block\BlockManagerInterface
+   */
+  protected $blockManager;
+
+  /**
    * Construct the ExperimentFormBase.
    *
    * For simple entity forms, there's no need for a constructor. Our experiment form
@@ -41,9 +47,12 @@ class ExperimentFormBase extends EntityForm {
    *
    * @param \Drupal\Core\Entity\Query\QueryFactory $query_factory
    *   An entity query factory for the experiment entity type.
+   * @param \Drupal\Core\Block\BlockManagerInterface $block_manager
+   *   The block manager.
    */
-  public function __construct(QueryFactory $query_factory) {
+  public function __construct(QueryFactory $query_factory, BlockManagerInterface $block_manager) {
     $this->entityQueryFactory = $query_factory;
+    $this->blockManager = $block_manager;
   }
 
   /**
@@ -61,11 +70,14 @@ class ExperimentFormBase extends EntityForm {
    * pass the factory to our class as a constructor parameter.
    */
   public static function create(ContainerInterface $container) {
-    return new static($container->get('entity.query'));
+    return new static(
+      $container->get('entity.query'),
+      $container->get('plugin.manager.block')
+    );
   }
 
   /**
-   * Overrides Drupal\Core\Entity\EntityFormController::form().
+   * Overrides \Drupal\Core\Entity\EntityForm::buildForm().
    *
    * Builds the entity add/edit form.
    *
@@ -106,15 +118,21 @@ class ExperimentFormBase extends EntityForm {
       ),
       '#disabled' => !$experiment->isNew(),
     );
-    // @todo Replace with list of block plugins.
     // @todo Improve the UX for adding blocks and selecting the view modes.
+    $blocks = array();
+    // @todo See exactly what's the deal with getDefinitionsForContexts.
+    $definitions = $this->blockManager->getDefinitionsForContexts();
+    $sorted_definitions = $this->blockManager->getSortedDefinitions($definitions);
+
+    foreach ($sorted_definitions as $plugin_id => $plugin_definition) {
+      $blocks[$plugin_id] = $plugin_definition['admin_label'];
+    }
+
+    // @todo Investigate why the block array is saved like this.
     $form['blocks'] = array(
       '#type' => 'select',
       '#title' => $this->t('Blocks'),
-      '#options' => [
-        'block1' => $this->t('Block 1'),
-        'block2' => $this->t('Block 2'),
-      ],
+      '#options' => $blocks,
       '#default_value' => array_keys($experiment->getBlocks()),
       '#multiple' => TRUE,
     );
@@ -232,6 +250,8 @@ class ExperimentFormBase extends EntityForm {
     }
     else {
       // If we created a new entity...
+      // @todo Here we need to take care of the case: a new block is added
+      //   while updating the experiment.
       \Drupal::state()->set('experiment.' . $experiment->id(), array_fill_keys($experiment->getBlocks(), 0));
       drupal_set_message($this->t('Experiment %label has been added.', array('%label' => $experiment->label())));
       $this->logger('contact')->notice('Experiment %label has been added.', ['%label' => $experiment->label(), 'link' => $edit_link]);
