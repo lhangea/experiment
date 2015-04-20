@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\experiment\MABAlgorithmManagerInterface.
+ * Contains \Drupal\experiment\MABAlgorithmInterface.
  */
 
 namespace Drupal\experiment;
