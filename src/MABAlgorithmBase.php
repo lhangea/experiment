@@ -2,23 +2,21 @@
 
 /**
  * @file
+ * Contains \Drupal\experiment\MABAlgorithmBase.
  */
-
 
 namespace Drupal\experiment;
 
-use Drupal\Component\Plugin\ConfigurablePluginInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\PluginBase;
-use Drupal\Core\Plugin\PluginFormInterface;
 
 /**
- * @todo create an interface containing all other three interfaces.
+ * Base class for multi armed bandit algorithms plugins.
  */
-abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterface, ConfigurablePluginInterface, PluginFormInterface {
+abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterface {
 
   /**
-   * Generates a random number.
+   * Helper function which generates a random number.
    *
    * @return float
    *   Random number between 0 and 1.
@@ -28,7 +26,7 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
   }
 
   /**
-   * Finds the index of the maximum key form the an array.
+   * Finds the index of the maximum key from an array.
    *
    * @param array
    *   Array containing key value pairs.
@@ -53,56 +51,50 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
   /**
    * {@inheritdoc}
    */
-  public function getConfiguration()
-  {
-    // TODO: Implement getConfiguration() method.
+  public function getConfiguration() {
+
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setConfiguration(array $configuration)
-  {
-    // TODO: Implement setConfiguration() method.
+  public function setConfiguration(array $configuration) {
+
   }
 
   /**
    * {@inheritdoc}
    */
-  public function defaultConfiguration()
-  {
-    // TODO: Implement defaultConfiguration() method.
+  public function defaultConfiguration() {
+
   }
 
   /**
    * {@inheritdoc}
    */
-  public function calculateDependencies()
-  {
-    // TODO: Implement calculateDependencies() method.
+  public function calculateDependencies() {
+
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state)
-  {
-    // TODO: Implement buildConfigurationForm() method.
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+
   }
 
   /**
    * {@inheritdoc}
    */
-  public function validateConfigurationForm(array &$form, FormStateInterface $form_state)
-  {
-    // TODO: Implement validateConfigurationForm() method.
+  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
+
   }
 
   /**
    * {@inheritdoc}
    */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state)
-  {
-    // TODO: Implement submitConfigurationForm() method.
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+
   }
+
 }

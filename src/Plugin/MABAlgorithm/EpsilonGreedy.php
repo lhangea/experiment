@@ -24,8 +24,10 @@ class EpsilonGreedy extends MABAlgorithmBase {
    */
   public function select()
   {
+    // @todo This should be dynamic.
     $values = \Drupal::state()->get('experiment.first_experiment');
     // Exploit (use the best known variation).
+    // @todo The 0.5 should also be dynamic.
     if ($this->getRand() > 0.5) {
       return $this->getIndMax($values);
     }
