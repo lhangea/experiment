@@ -46,3 +46,4 @@ experiment.select:
     _controller: '\Drupal\experiment\Controller\ExperimentController::getBlockContent'
   requirements:
     _permission: 'access content'
+

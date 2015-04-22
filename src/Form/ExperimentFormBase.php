@@ -109,6 +109,7 @@ class ExperimentFormBase extends EntityForm {
     // class of our entity. Drupal knows which class to call from the
     // annotation on our Experiment class.
     $experiment = $this->entity;
+    $form['#tree'] = TRUE;
     // Build the form.
     $form['label'] = array(
       '#type' => 'textfield',
@@ -155,15 +156,46 @@ class ExperimentFormBase extends EntityForm {
       $algorithms[$plugin_id] = $plugin_definition['label'];
     }
 
-    $form['algorithm'] = [
-      '#type' => 'select',
+    // Since the form builder is called after every AJAX request, we rebuild
+    // the form based on $form_state.
+    $selected_algorithm = $form_state->getValue('algorithm');
+    $algorithm = !empty($selected_algorithm) ? $selected_algorithm : $experiment->getAlgorithm();
+
+    $form['algorithm'] = array(
       '#title' => $this->t('Algorithm'),
+      '#type' => 'select',
       '#options' => $algorithms,
-      '#default_value' => $experiment->getAlgorithm(),
-    ];
+      '#default_value' => $algorithm,
+      '#ajax' => array(
+        'callback' => array($this, 'ajaxAlgorithmSettingsCallback'),
+        'wrapper' => 'algorithm-settings-div',
+        'effect' => 'fade',
+        'progress' => array('type' => 'none'),
+      ),
+    );
+
+    /** @var @var \Drupal\experiment\MABAlgorithmInterface */
+    $plugin = \Drupal::getContainer()->get('plugin.manager.mab_algorithm')->createInstance($algorithm);
+
+    $form['settings_fieldset'] = array(
+      '#title' => $this->t('Algorithm settings'),
+      '#prefix' => '<div id="algorithm-settings-div">',
+      '#suffix' => '</div>',
+      '#type' => 'fieldset',
+      '#description' => t('Configure the parameters of the algorithm'),
+    );
+
+    $form['settings_fieldset']['algorithm'] = $plugin->buildConfigurationForm();
 
     // Return the form.
     return $form;
+  }
+
+  /**
+   * Ajax handler for algorithm settings.
+   */
+  function ajaxAlgorithmSettingsCallback(array $form, FormStateInterface $form_state) {
+    return $form['settings_fieldset'];
   }
 
   /**
