@@ -10,6 +10,7 @@ namespace Drupal\experiment\Form;
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Entity\Query\QueryFactory;
+use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\experiment\MABAlgorithmManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -111,24 +112,24 @@ class ExperimentFormBase extends EntityForm {
     $experiment = $this->entity;
     $form['#tree'] = TRUE;
     // Build the form.
-    $form['label'] = array(
+    $form['label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Label'),
       '#maxlength' => 255,
       '#default_value' => $experiment->label(),
       '#required' => TRUE,
-    );
-    $form['id'] = array(
+    ];
+    $form['id'] = [
       '#type' => 'machine_name',
       '#title' => $this->t('Machine name'),
       '#default_value' => $experiment->id(),
-      '#machine_name' => array(
-        'exists' => array($this, 'exists'),
+      '#machine_name' => [
+        'exists' => [$this, 'exists'],
         'replace_pattern' => '([^a-z0-9_]+)|(^custom$)',
         'error' => 'The machine-readable name must be unique, and can only contain lowercase letters, numbers, and underscores. Additionally, it can not be the reserved word "custom".',
-      ),
+      ],
       '#disabled' => !$experiment->isNew(),
-    );
+    ];
     // @todo Improve the UX for adding blocks and selecting the view modes.
     $blocks = array();
     // @todo See exactly what's the deal with getDefinitionsForContexts.
@@ -152,38 +153,37 @@ class ExperimentFormBase extends EntityForm {
     $algorithms = array();
     $algorithm_definitions = $this->mabAlgorithmManager->getDefinitions();
 
-    foreach($algorithm_definitions as $plugin_id => $plugin_definition) {
+    foreach ($algorithm_definitions as $plugin_id => $plugin_definition) {
       $algorithms[$plugin_id] = $plugin_definition['label'];
     }
 
     // Since the form builder is called after every AJAX request, we rebuild
     // the form based on $form_state.
     $selected_algorithm = $form_state->getValue('algorithm');
-    $algorithm = !empty($selected_algorithm) ? $selected_algorithm : $experiment->getAlgorithm();
+    $algorithm = ($selected_algorithm) ? $selected_algorithm : $experiment->getAlgorithm();
 
-    $form['algorithm'] = array(
+    $form['algorithm'] = [
       '#title' => $this->t('Algorithm'),
       '#type' => 'select',
       '#options' => $algorithms,
       '#default_value' => $algorithm,
-      '#ajax' => array(
-        'callback' => array($this, 'ajaxAlgorithmSettingsCallback'),
+      '#ajax' => [
+        'callback' => [$this, 'ajaxAlgorithmSettingsCallback'],
         'wrapper' => 'algorithm-settings-div',
         'effect' => 'fade',
-        'progress' => array('type' => 'none'),
-      ),
-    );
+        'progress' => ['type' => 'none'],
+      ],
+    ];
 
-    /** @var @var \Drupal\experiment\MABAlgorithmInterface */
     $plugin = \Drupal::getContainer()->get('plugin.manager.mab_algorithm')->createInstance($algorithm);
 
-    $form['settings_fieldset'] = array(
+    $form['settings_fieldset'] = [
       '#title' => $this->t('Algorithm settings'),
       '#prefix' => '<div id="algorithm-settings-div">',
       '#suffix' => '</div>',
       '#type' => 'fieldset',
       '#description' => t('Configure the parameters of the algorithm'),
-    );
+    ];
 
     $form['settings_fieldset']['algorithm'] = $plugin->buildConfigurationForm();
 
@@ -278,6 +278,17 @@ class ExperimentFormBase extends EntityForm {
     // EntityForm provides us with the entity we're working on.
     $experiment = $this->getEntity();
 
+    $form_state->cleanValues();
+    // The algorithm configuration is stored in the 'algorithm' key in the form,
+    // pass that through for submission.
+    $algorithm_config = (new FormState())->setValues($form_state->getValue(['settings_fieldset', 'algorithm']));
+    // @todo See if it's better to have a class instance variable holding the algorithm.
+    $algorithm = \Drupal::getContainer()->get('plugin.manager.mab_algorithm')->createInstance($experiment->getAlgorithm());
+    $algorithm->submitConfigurationForm($form, $algorithm_config);
+    // Update the original form values.
+    $form_state->setValue(['settings_fieldset', 'algorithm'], $algorithm_config->getValues());
+
+    $experiment->setAlgorithmConfig($algorithm->getConfiguration());
     // Drupal already populated the form values in the entity object. Each
     // form field was saved as a public variable in the entity class. PHP
     // allows Drupal to do this even if the method is not defined ahead of

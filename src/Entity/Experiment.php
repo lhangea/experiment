@@ -75,6 +75,13 @@ class Experiment extends ConfigEntityBase implements ExperimentInterface {
   public $algorithm;
 
   /**
+   * The configuration of the algorithm used by an experiment.
+   *
+   * @var array
+   */
+  public $algorithmConfig;
+
+  /**
    * {@inheritdoc}
    */
   public function getBlocks() {
@@ -107,5 +114,21 @@ class Experiment extends ConfigEntityBase implements ExperimentInterface {
    */
   public function addBlock($block) {
     $this->blocks[] = $block;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getAlgorithmConfig()
+  {
+    return $this->algorithmConfig;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setAlgorithmConfig($config)
+  {
+    $this->algorithmConfig = $config;
   }
 }

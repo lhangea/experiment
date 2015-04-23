@@ -60,35 +60,4 @@ class EpsilonGreedy extends MABAlgorithmBase {
 //    return $default_configuration;
 //  }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    $form = parent::buildConfigurationForm($form, $form_state);
-    $form['title'] = [
-      '#type' => 'textfield',
-      '#title' => t('Epsilon'),
-      '#default_value' => $this->configuration['epsilon'],
-      '#size' => 60,
-      '#maxlength' => 128,
-      '#required' => TRUE,
-    ];
-
-    return $form;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $form = parent::submitConfigurationForm($form, $form_state);
-  }
-
 }

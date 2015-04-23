@@ -52,14 +52,14 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
    * {@inheritdoc}
    */
   public function getConfiguration() {
-
+    return $this->configuration;
   }
 
   /**
    * {@inheritdoc}
    */
   public function setConfiguration(array $configuration) {
-
+    $this->configuration = $configuration;
   }
 
   /**
@@ -80,7 +80,16 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+    $form['epsilon'] = [
+      '#type' => 'textfield',
+      '#title' => t('Epsilon'),
+      '#default_value' => $this->configuration['epsilon'],
+      '#size' => 60,
+      '#maxlength' => 128,
+      '#required' => TRUE,
+    ];
 
+    return $form;
   }
 
   /**
@@ -94,7 +103,7 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-
+    $this->configuration['epsilon'] = $form_state->getValue('epsilon');
   }
 
 }
