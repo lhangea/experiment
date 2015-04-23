@@ -79,7 +79,7 @@ class Experiment extends ConfigEntityBase implements ExperimentInterface {
    *
    * @var array
    */
-  public $algorithmConfig;
+  public $algorithm_config;
 
   /**
    * {@inheritdoc}
@@ -121,7 +121,7 @@ class Experiment extends ConfigEntityBase implements ExperimentInterface {
    */
   public function getAlgorithmConfig()
   {
-    return $this->algorithmConfig;
+    return $this->algorithm_config;
   }
 
   /**
@@ -129,6 +129,6 @@ class Experiment extends ConfigEntityBase implements ExperimentInterface {
    */
   public function setAlgorithmConfig($config)
   {
-    $this->algorithmConfig = $config;
+    $this->algorithm_config = $config;
   }
 }

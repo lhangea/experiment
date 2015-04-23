@@ -2,11 +2,11 @@
 
 /**
  * @file
+ * Contains the Epsilon greedy algorithm.
  */
 
 namespace Drupal\experiment\Plugin\MABAlgorithm;
 
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\experiment\MABAlgorithmBase;
 
 /**
@@ -23,13 +23,13 @@ class EpsilonGreedy extends MABAlgorithmBase {
   /**
    * {@inheritdoc}
    */
-  public function select()
-  {
-    // @todo Thr name of the experiment should be dynamic.
-    $values = \Drupal::state()->get('experiment.first_experiment');
+  public function select() {
+    // @todo See if the state is the best option for storing the experiment
+    //   result and if yes, inject the service.
+    $values = \Drupal::state()->get('experiment.' . $this->configuration['experiment_id']);
+
     // Exploit (use the best known variation).
-    // @todo The 0.5 should also be dynamic.
-    if ($this->getRand() > 0.5) {
+    if ($this->getRand() > $this->configuration['epsilon']) {
       return $this->getIndMax($values);
     }
     // Explore (select a random variation).

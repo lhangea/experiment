@@ -23,6 +23,12 @@ experiment.experiment.*:
     algorithm:
       type: string
       label: 'Algorithm'
+    algorithm_config:
+      type: sequence
+      label: 'Algorithm Configuration'
+      sequence:
+        - type: string
+          label: 'Parameter'
     blocks:
       type: sequence
       label: 'Blocks'

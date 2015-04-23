@@ -96,7 +96,7 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-
+    // @todo Handle the validation.
   }
 
   /**

@@ -76,8 +76,10 @@ class ExperimentController implements ContainerInjectionInterface {
    *   JSON response for the given experiment.
    */
   public function getBlockContent(ExperimentInterface $experiment) {
-    // @todo Here we need to pass in the algorithm configuration for this specific experiment.
-    $algorithm = $this->mabAlgorithmManager->createInstance($experiment->getAlgorithm());
+    $algorithm = $this->mabAlgorithmManager->createInstance(
+        $experiment->getAlgorithm(),
+        $experiment->getAlgorithmConfig()
+    );
 
     $response = new Response();
     // @todo See if it actually makes sense to have block instances rather than plugins.
