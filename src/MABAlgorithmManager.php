@@ -4,13 +4,12 @@ namespace Drupal\experiment;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\Core\Language\LanguageManager;
 use Drupal\Core\Plugin\DefaultPluginManager;
 
 /**
  * Multi armed bandit algorithm plugin manager.
  */
-class MABAlgorithmManager extends DefaultPluginManager {
+class MABAlgorithmManager extends DefaultPluginManager implements MABAlgorithmManagerInterface {
 
   /**
    * Constructs a MABAlgorithmManager object.
@@ -29,4 +28,18 @@ class MABAlgorithmManager extends DefaultPluginManager {
     $this->setCacheBackend($cache_backend, 'mab_algorithm_info_plugins');
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function createInstanceFromExperiment(ExperimentInterface $experiment) {
+    $algorithm_configuration = $experiment->getAlgorithmConfig() ? $experiment->getAlgorithmConfig() : [];
+
+    if (!$algorithm_configuration['experiment_id']) {
+      $algorithm_configuration['experiment_id'] = $experiment->id();
+    }
+    // Create an instance of the algorithm associated with the experiment.
+    $algorithm = $this->createInstance($experiment->getAlgorithm(), $algorithm_configuration);
+
+    return $algorithm;
+  }
 }

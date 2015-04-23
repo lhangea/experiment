@@ -140,17 +140,15 @@ class ExperimentFormBase extends EntityForm {
     $selected_algorithm = $form_state->getValue('algorithm');
     $algorithm_id = ($selected_algorithm) ? $selected_algorithm : $experiment->getAlgorithm();
 
-    // If there isn't any algorithm selected i.e. first time when add new
+    // If there isn't any algorithm selected i.e. first time when adding a new
     // experiment page is requested select the first algorithm as default.
     if (!$algorithm_id) {
       reset($algorithms);
       $algorithm_id = key($algorithms);
     }
+    $experiment->setAlgorithm($algorithm_id);
 
-    $algorithm_configuration = $experiment->getAlgorithmConfig() ? $experiment->getAlgorithmConfig() : [];
-    $algorithm_configuration += ['experiment_id' => $experiment->id()];
-    // Create an instance of the algorithm associated with the experiment.
-    $this->algorithm = $this->mabAlgorithmManager->createInstance($algorithm_id, $algorithm_configuration);
+    $this->algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($experiment);
 
     $form['algorithm'] = [
       '#title' => $this->t('Algorithm'),
