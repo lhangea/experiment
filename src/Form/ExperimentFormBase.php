@@ -131,7 +131,6 @@ class ExperimentFormBase extends EntityForm {
       }
     }
 
-    // @todo Investigate why the block array is saved like this.
     $form['blocks'] = [
       '#type' => 'select',
       '#title' => $this->t('Blocks'),
@@ -184,6 +183,10 @@ class ExperimentFormBase extends EntityForm {
       '#description' => t('Configure the parameters of the algorithm'),
     ];
 
+    $plugin_definition = $this->algorithm->getPluginDefinition();
+    $form['settings_fieldset']['description'] = [
+      '#markup' => $plugin_definition['description'],
+    ];
     $form['settings_fieldset']['algorithm'] = $this->algorithm->buildConfigurationForm([], $form_state);
 
     // Return the form.

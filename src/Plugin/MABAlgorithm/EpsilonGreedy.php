@@ -15,7 +15,7 @@ use Drupal\experiment\MABAlgorithmBase;
  * @MABAlgorithm(
  *   id = "epsilon_greedy",
  *   label = @Translation("Epsilon greedy"),
- *   description = @Translation("Description of the epsilon greedy algorithm."),
+ *   description = @Translation("Epsilon greedy exploration is a strategy that randomly picks a variation with probability epsilon and will display the best known variation otherwise."),
  * )
  */
 class EpsilonGreedy extends MABAlgorithmBase {
@@ -40,23 +40,8 @@ class EpsilonGreedy extends MABAlgorithmBase {
   /**
    * {@inheritdoc}
    */
-  public function update()
-  {
-    // TODO: Implement update() method.
-  }
+  public function update() {
 
-//  /**
-//   * {@inheritdoc}
-//   */
-//  public function defaultConfiguration() {
-//    // @todo This values must be saved dynamically.
-//    $default_configuration = array(
-//      'epsilon' => 0.5,
-//      'experiment_id' => 'first_experiment',
-//    );
-//    $default_configuration += parent::defaultConfiguration();
-//
-//    return $default_configuration;
-//  }
+  }
 
 }
