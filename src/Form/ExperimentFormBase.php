@@ -243,7 +243,15 @@ class ExperimentFormBase extends EntityForm {
     parent::validate($form, $form_state);
 
     // Add code here to validate your config entity's form elements.
-    // @todo Validate the algorithm plugin configuration form here.
+    $form_state->cleanValues();
+    // The algorithm configuration is stored in the 'algorithm' key in the form,
+    // pass that through form submission.
+    $algorithm_config = (new FormState())->setValues($form_state->getValue(['settings_fieldset', 'algorithm']));
+    $this->algorithm->validateConfigurationForm($form, $algorithm_config);
+
+    // Update the original form values.
+    // @todo i don't know why do we have to do this!!
+    $form_state->setValue(['settings_fieldset', 'algorithm'], $algorithm_config->getValues());
   }
 
   /**
