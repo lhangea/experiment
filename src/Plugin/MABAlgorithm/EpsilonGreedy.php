@@ -24,9 +24,8 @@ class EpsilonGreedy extends MABAlgorithmBase {
    * {@inheritdoc}
    */
   public function select() {
-    // @todo See if the state is the best option for storing the experiment
-    //   result and if yes, inject the service.
-    $values = \Drupal::state()->get('experiment.' . $this->configuration['experiment_id']);
+    // @todo See if the state is the best option for storing the experiment result.
+    $values = $this->state->get('experiment.' . $this->configuration['experiment_id']);
 
     // Exploit (use the best known variation).
     if ($this->getRand() > $this->configuration['epsilon']) {

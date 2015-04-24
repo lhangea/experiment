@@ -8,12 +8,53 @@
 namespace Drupal\experiment;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase;
+use Drupal\Core\State\StateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Base class for multi armed bandit algorithms plugins.
  */
-abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterface {
+abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterface, ContainerFactoryPluginInterface {
+
+  /**
+   * The state service.
+   *
+   * @var \Drupal\Core\State\StateInterface
+   */
+  protected $state;
+
+  /**
+   * Constructs a FieldDiffBuilderBase object.
+   *
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin_id for the plugin instance.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, StateInterface $state) {
+    $this->state = $state;
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+
+    $this->configuration += $this->defaultConfiguration();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+        $configuration,
+        $plugin_id,
+        $plugin_definition,
+        $container->get('state')
+    );
+  }
 
   /**
    * Helper function which generates a random number.
@@ -66,7 +107,7 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
    * {@inheritdoc}
    */
   public function defaultConfiguration() {
-
+    return [];
   }
 
   /**

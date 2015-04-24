@@ -12,6 +12,7 @@ use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\State\StateInterface;
 use Drupal\experiment\MABAlgorithmManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -51,6 +52,13 @@ class ExperimentFormBase extends EntityForm {
   protected $mabAlgorithmManager;
 
   /**
+   * The state service.
+   *
+   * @var \Drupal\Core\State\StateInterface
+   */
+  protected $state;
+
+  /**
    * Constructs the ExperimentFormBase.
    *
    * @param \Drupal\Core\Entity\Query\QueryFactory $query_factory
@@ -59,11 +67,14 @@ class ExperimentFormBase extends EntityForm {
    *   The block manager.
    * @param \Drupal\experiment\MABAlgorithmManager $mabAlgorithmManager
    *   Multi armed bandit algorithm manager.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
    */
-  public function __construct(QueryFactory $query_factory, BlockManagerInterface $block_manager, MABAlgorithmManager $mabAlgorithmManager) {
+  public function __construct(QueryFactory $query_factory, BlockManagerInterface $block_manager, MABAlgorithmManager $mabAlgorithmManager, StateInterface $state) {
     $this->entityQueryFactory = $query_factory;
     $this->blockManager = $block_manager;
     $this->mabAlgorithmManager = $mabAlgorithmManager;
+    $this->state = $state;
     $this->experiment = $this->getEntity();
   }
 
@@ -74,7 +85,8 @@ class ExperimentFormBase extends EntityForm {
     return new static(
       $container->get('entity.query'),
       $container->get('plugin.manager.block'),
-      $container->get('plugin.manager.mab_algorithm')
+      $container->get('plugin.manager.mab_algorithm'),
+      $container->get('state')
     );
   }
 
@@ -260,17 +272,17 @@ class ExperimentFormBase extends EntityForm {
 
     // Create an edit link.
     $edit_link = $this->l(t('Edit'), $url);
+    // @todo study the possibility of not resetting the experiment if there
+    //   are no changes to the blocks list and to the algorithm configuration
+    //   If it remains like this redirect to a confirmation page when updating.
+    $this->state->set('experiment.' . $experiment->id(), array_fill_keys($experiment->getBlocks(), 0));
 
     if ($status == SAVED_UPDATED) {
-      // If we edited an existing entity...
       drupal_set_message($this->t('Experiment %label has been updated.', ['%label' => $experiment->label()]));
       $this->logger('contact')->notice('Experiment %label has been updated.', ['%label' => $experiment->label(), 'link' => $edit_link]);
     }
+    // New entity.
     else {
-      // If we created a new entity...
-      // @todo Here we need to take care of the case: a new block is added
-      //   while updating the experiment.
-      \Drupal::state()->set('experiment.' . $experiment->id(), array_fill_keys($experiment->getBlocks(), 0));
       drupal_set_message($this->t('Experiment %label has been added.', ['%label' => $experiment->label()]));
       $this->logger('contact')->notice('Experiment %label has been added.', ['%label' => $experiment->label(), 'link' => $edit_link]);
     }
