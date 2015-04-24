@@ -122,12 +122,13 @@ class ExperimentFormBase extends EntityForm {
     // @todo Improve the UX for adding blocks and add the feature: select the
     //   same block but different view modes.
     $blocks = [];
-    // @todo See exactly what's the deal with getDefinitionsForContexts.
-    $definitions = $this->blockManager->getDefinitionsForContexts();
-    $sorted_definitions = $this->blockManager->getSortedDefinitions($definitions);
+    $definitions = $this->blockManager->getDefinitions();
 
-    foreach ($sorted_definitions as $plugin_id => $plugin_definition) {
-      $blocks[$plugin_id] = $plugin_definition['admin_label'];
+    foreach ($definitions as $plugin_id => $plugin_definition) {
+      // Don't add the placeholder block here.
+      if ($plugin_id != 'experiment_block') {
+        $blocks[$plugin_id] = $plugin_definition['admin_label'];
+      }
     }
 
     // @todo Investigate why the block array is saved like this.
