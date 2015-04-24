@@ -35,14 +35,14 @@ interface ExperimentInterface extends ConfigEntityInterface {
    * @return string
    *   Id of the algorithm.
    */
-  public function getAlgorithm();
+  public function getAlgorithmId();
 
   /**
    * Set the algorithm.
    *
    * @param string $algorithm Algorithm used by the experiment.
    */
-  public function setAlgorithm($algorithm);
+  public function setAlgorithmId($algorithm);
 
   /**
    * Returns the configuration of the algorithm plugin.

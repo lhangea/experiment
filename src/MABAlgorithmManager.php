@@ -38,7 +38,7 @@ class MABAlgorithmManager extends DefaultPluginManager implements MABAlgorithmMa
       $algorithm_configuration['experiment_id'] = $experiment->id();
     }
     // Create an instance of the algorithm associated with the experiment.
-    $algorithm = $this->createInstance($experiment->getAlgorithm(), $algorithm_configuration);
+    $algorithm = $this->createInstance($experiment->getAlgorithmId(), $algorithm_configuration);
 
     return $algorithm;
   }

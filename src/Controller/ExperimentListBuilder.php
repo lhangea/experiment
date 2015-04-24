@@ -47,7 +47,7 @@ class ExperimentListBuilder extends ConfigEntityListBuilder {
     $row['label'] = $this->getLabel($entity);
     $row['machine_name'] = $entity->id();
     // @todo Display label instead.
-    $row['algorithm'] = $entity->getAlgorithm();
+    $row['algorithm'] = $entity->getAlgorithmId();
     // @todo UX improvements needed.
     // @todo Will be changed.
     $row['blocks'] = implode(", ", $entity->getBlocks());

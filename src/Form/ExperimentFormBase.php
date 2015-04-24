@@ -151,7 +151,7 @@ class ExperimentFormBase extends EntityForm {
     // Since the form builder is called after every AJAX request, we rebuild
     // the form based on $form_state.
     $selected_algorithm = $form_state->getValue('algorithm');
-    $algorithm_id = ($selected_algorithm) ? $selected_algorithm : $experiment->getAlgorithm();
+    $algorithm_id = ($selected_algorithm) ? $selected_algorithm : $experiment->getAlgorithmId();
 
     // If there isn't any algorithm selected i.e. first time when adding a new
     // experiment page is requested select the first algorithm as default.
@@ -159,7 +159,7 @@ class ExperimentFormBase extends EntityForm {
       reset($algorithms);
       $algorithm_id = key($algorithms);
     }
-    $experiment->setAlgorithm($algorithm_id);
+    $experiment->setAlgorithmId($algorithm_id);
 
     $this->algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($experiment);
 

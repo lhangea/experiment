@@ -72,7 +72,7 @@ class Experiment extends ConfigEntityBase implements ExperimentInterface {
    *
    * @var string
    */
-  public $algorithm;
+  public $algorithm_id;
 
   /**
    * The configuration of the algorithm used by an experiment.
@@ -98,15 +98,15 @@ class Experiment extends ConfigEntityBase implements ExperimentInterface {
   /**
    * {@inheritdoc}
    */
-  public function getAlgorithm() {
-    return $this->algorithm;
+  public function getAlgorithmId() {
+    return $this->algorithm_id;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setAlgorithm($algorithm) {
-    $this->algorithm = $algorithm;
+  public function setAlgorithmId($algorithm_id) {
+    $this->algorithm_id = $algorithm_id;
   }
 
   /**
