@@ -31,8 +31,7 @@ class Softmax extends MABAlgorithmBase {
   /**
    * {@inheritdoc}
    */
-  public function update()
-  {
+  public function update($variation_id, $reward) {
     // TODO: Implement update() method.
   }
 

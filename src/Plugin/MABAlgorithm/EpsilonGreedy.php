@@ -55,4 +55,5 @@ class EpsilonGreedy extends MABAlgorithmBase {
 
     $this->state->get('experiment.' . $this->configuration['experiment_id'], $results);
   }
+
 }
