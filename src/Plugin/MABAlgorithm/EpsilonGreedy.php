@@ -25,7 +25,8 @@ class EpsilonGreedy extends MABAlgorithmBase {
    */
   public function select() {
     // @todo See if the state is the best option for storing the experiment result.
-    $values = $this->state->get('experiment.' . $this->configuration['experiment_id']);
+    $results = $this->state->get('experiment.' . $this->configuration['experiment_id']);
+    $values = $results['values'];
 
     // Exploit (use the best known variation).
     if ($this->getRand() > $this->configuration['epsilon']) {
@@ -37,11 +38,21 @@ class EpsilonGreedy extends MABAlgorithmBase {
     }
   }
 
+
   /**
    * {@inheritdoc}
    */
-  public function update() {
+  public function update($variation_id, $reward) {
+    // Get the current values.
+    $results = $this->state->get('experiment.' . $this->configuration['experiment_id']);
 
+    $results['counts'][$variation_id] += 1;
+    $n = $results['counts'][$variation_id];
+
+    $value = $results['values'][$variation_id];
+    $new_value = (($n - 1) / (float)$n) * $value + (1 / (float)$n) * $reward;
+    $results['values'][$variation_id] = $new_value;
+
+    $this->state->get('experiment.' . $this->configuration['experiment_id'], $results);
   }
-
 }

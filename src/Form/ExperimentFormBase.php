@@ -287,7 +287,11 @@ class ExperimentFormBase extends EntityForm {
     // @todo study the possibility of not resetting the experiment if there
     //   are no changes to the blocks list and to the algorithm configuration
     //   If it remains like this redirect to a confirmation page when updating.
-    $this->state->set('experiment.' . $experiment->id(), array_fill_keys($experiment->getBlocks(), 0));
+    $this->state->set('experiment.' . $experiment->id(), [
+        'counts' => array_fill_keys($experiment->getBlocks(), 0),
+        'values' => array_fill_keys($experiment->getBlocks(), 0),
+      ]
+    );
 
     if ($status == SAVED_UPDATED) {
       drupal_set_message($this->t('Experiment %label has been updated.', ['%label' => $experiment->label()]));

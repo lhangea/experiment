@@ -122,6 +122,8 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
    *
    * @return float
    *   Random number between 0 and 1.
+   *
+   * @todo Add unit tests for this.
    */
   public function getRand() {
     return mt_rand() / mt_getrandmax();
@@ -135,6 +137,8 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
    *
    * @return string
    *   The key of the max value from the array.
+   *
+   * @todo Add unit tests for this.
    */
   function getIndMax($array) {
     $max_key = -1;
@@ -158,6 +162,8 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
    * @return bool
    *   TRUE if the value is between 0 and 1 (inclusive)
    *   FALSE otherwise
+   *
+   * @todo Add unit tests.
    */
   public function isFloatBetweenZeroAndOne($string) {
     $number = floatval($string);
