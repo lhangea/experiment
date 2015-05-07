@@ -17,24 +17,12 @@ use Drupal\experiment\MABAlgorithmManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class ExperimentFormBase.
- *
  * Typically, we need to build the same form for both adding a new entity,
  * and editing an existing entity. Instead of duplicating our form code,
  * we create a base class. Drupal never routes to this class directly,
  * but instead through the child classes of ExperimentAddForm and ExperimentEditForm.
  */
 class ExperimentFormBase extends EntityForm {
-
-  /**
-   * @var \Drupal\experiment\MABAlgorithmInterface
-   */
-  protected $algorithm;
-
-  /**
-   * @var \Drupal\experiment\ExperimentInterface
-   */
-  protected $experiment;
 
   /**
    * @var \Drupal\Core\Entity\Query\QueryFactory
@@ -52,8 +40,6 @@ class ExperimentFormBase extends EntityForm {
   protected $mabAlgorithmManager;
 
   /**
-   * The state service.
-   *
    * @var \Drupal\Core\State\StateInterface
    */
   protected $state;
@@ -75,7 +61,6 @@ class ExperimentFormBase extends EntityForm {
     $this->blockManager = $block_manager;
     $this->mabAlgorithmManager = $mabAlgorithmManager;
     $this->state = $state;
-    $this->experiment = $this->getEntity();
   }
 
   /**
@@ -154,13 +139,13 @@ class ExperimentFormBase extends EntityForm {
 
     // If there isn't any algorithm selected i.e. first time when adding a new
     // experiment page is requested select the first algorithm as default.
-    if (!$algorithm_id) {
+    if ($experiment->isNew()) {
       reset($algorithms);
       $algorithm_id = key($algorithms);
     }
     $experiment->setAlgorithmId($algorithm_id);
 
-    $this->algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($experiment);
+    $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($experiment);
 
     $form['algorithm'] = [
       '#title' => $this->t('Algorithm'),
@@ -183,11 +168,11 @@ class ExperimentFormBase extends EntityForm {
       '#description' => t('Configure the parameters of the algorithm'),
     ];
 
-    $plugin_definition = $this->algorithm->getPluginDefinition();
+    $plugin_definition = $algorithm->getPluginDefinition();
     $form['settings_fieldset']['description'] = [
       '#markup' => $plugin_definition['description'],
     ];
-    $form['settings_fieldset']['algorithm'] = $this->algorithm->buildConfigurationForm([], $form_state);
+    $form['settings_fieldset']['algorithm'] = $algorithm->buildConfigurationForm([], $form_state);
 
     // Return the form.
     return $form;
@@ -250,7 +235,8 @@ class ExperimentFormBase extends EntityForm {
     // The algorithm configuration is stored in the 'algorithm' key in the form,
     // pass that through form submission.
     $algorithm_config = (new FormState())->setValues($form_state->getValue(['settings_fieldset', 'algorithm']));
-    $this->algorithm->validateConfigurationForm($form, $algorithm_config);
+    $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($this->getEntity());
+    $algorithm->validateConfigurationForm($form, $algorithm_config);
 
     // Update the original form values.
     // @todo i don't know why do we have to do this!!
@@ -262,16 +248,17 @@ class ExperimentFormBase extends EntityForm {
    */
   public function save(array $form, FormStateInterface $form_state) {
     $experiment = $this->getEntity();
+    $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($experiment);
 
     $form_state->cleanValues();
     // The algorithm configuration is stored in the 'algorithm' key in the form,
     // pass that through form submission.
     $algorithm_config = (new FormState())->setValues($form_state->getValue(['settings_fieldset', 'algorithm']));
-    $this->algorithm->submitConfigurationForm($form, $algorithm_config);
+    $algorithm->submitConfigurationForm($form, $algorithm_config);
 
     // Update the original form values.
     $form_state->setValue(['settings_fieldset', 'algorithm'], $algorithm_config->getValues());
-    $experiment->setAlgorithmConfig($this->algorithm->getConfiguration());
+    $experiment->setAlgorithmConfig($algorithm->getConfiguration());
 
     // Drupal already populated the form values in the entity object. Each
     // form field was saved as a public variable in the entity class. PHP

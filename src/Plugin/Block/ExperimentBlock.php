@@ -69,4 +69,5 @@ class ExperimentBlock extends BlockBase {
   public function blockSubmit($form, FormStateInterface $form_state) {
     $this->configuration['experiment']['id'] = $form_state->getValue(['experiment', 'block']);
   }
+
 }

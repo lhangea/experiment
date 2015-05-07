@@ -91,7 +91,7 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
     $form['epsilon'] = [
       '#type' => 'textfield',
       '#title' => t('Epsilon'),
-      '#default_value' => $this->configuration['epsilon'],
+      '#default_value' => (isset($this->configuration['epsilon'])) ? $this->configuration['epsilon'] : NULL,
       '#size' => 60,
       '#maxlength' => 128,
       '#required' => TRUE,

@@ -9,7 +9,6 @@ namespace Drupal\experiment\Controller;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\experiment\ExperimentInterface;
 
 /**
  * Provides a listing of experiment entities.
@@ -35,7 +34,7 @@ class ExperimentListBuilder extends ConfigEntityListBuilder {
   /**
    * Builds a row for an entity in the entity listing.
    *
-   * @param ExperimentInterface $entity
+   * @param EntityInterface $entity
    *   The entity for which to build the row.
    *
    * @return array
@@ -43,7 +42,7 @@ class ExperimentListBuilder extends ConfigEntityListBuilder {
    *
    * @see Drupal\Core\Entity\EntityListController::render()
    */
-  public function buildRow(ExperimentInterface $entity) {
+  public function buildRow(EntityInterface $entity) {
     $row['label'] = $this->getLabel($entity);
     $row['machine_name'] = $entity->id();
     // @todo Display label instead.

@@ -34,7 +34,9 @@ class MABAlgorithmManager extends DefaultPluginManager implements MABAlgorithmMa
   public function createInstanceFromExperiment(ExperimentInterface $experiment) {
     $algorithm_configuration = $experiment->getAlgorithmConfig() ? $experiment->getAlgorithmConfig() : [];
 
-    if (!$algorithm_configuration['experiment_id']) {
+    // When first submitting the experiment form save the experiment id
+    // in the algorithm configuration.
+    if (!$algorithm_configuration['experiment_id'] && $experiment->id()) {
       $algorithm_configuration['experiment_id'] = $experiment->id();
     }
     // Create an instance of the algorithm associated with the experiment.
@@ -42,4 +44,5 @@ class MABAlgorithmManager extends DefaultPluginManager implements MABAlgorithmMa
 
     return $algorithm;
   }
+
 }
