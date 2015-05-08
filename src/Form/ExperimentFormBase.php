@@ -7,12 +7,14 @@
 
 namespace Drupal\experiment\Form;
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\State\StateInterface;
+use Drupal\Core\Url;
 use Drupal\experiment\MABAlgorithmManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -104,7 +106,7 @@ class ExperimentFormBase extends EntityForm {
       ],
       '#disabled' => !$experiment->isNew(),
     ];
-    // @todo Improve the UX for adding blocks and add the feature: select the
+/*    // @todo Improve the UX for adding blocks and add the feature: select the
     //   same block but different view modes.
     $blocks = [];
     $definitions = $this->blockManager->getDefinitions();
@@ -122,6 +124,44 @@ class ExperimentFormBase extends EntityForm {
       '#options' => $blocks,
       '#default_value' => array_keys($experiment->getBlocks()),
       '#multiple' => TRUE,
+    ];*/
+
+//    $form['select_block']['#links'] = array(
+//      'title' => $this->t('Add a new block'),
+//      'url' => Url::fromRoute('block.admin_add', [
+//        'plugin_id' => 'experiment',
+//        'theme' => $this->theme
+//      ]),
+//      'attributes' => array(
+//        'class' => array('use-ajax', 'block-filter-text-source'),
+//        'data-accepts' => 'application/vnd.drupal-modal',
+//        'data-dialog-options' => Json::encode(array(
+//          'width' => 700,
+//        )),
+//      ),
+//    );
+
+    $form['variations_set'] = [
+      '#title' => $this->t('Variations set'),
+      '#prefix' => '<div id="variations-set-div">',
+      '#suffix' => '</div>',
+      '#type' => 'fieldset',
+    ];
+
+    $form['variations_set']['add_block'] = [
+      '#type' => 'link',
+      '#title' => $this->t('Add a new block'),
+      '#url' => Url::fromRoute('block.admin_add', [
+        'plugin_id' => 'experiment_block',
+//        'theme' => 'bartik'
+      ]),
+      '#attributes' => [
+        'class' => array('use-ajax', 'block-filter-text-source'),
+        'data-accepts' => 'application/vnd.drupal-modal',
+        'data-dialog-options' => Json::encode(array(
+          'width' => 700,
+        )),
+      ],
     ];
 
     // Get a list of all algorithm plugins.
@@ -165,7 +205,6 @@ class ExperimentFormBase extends EntityForm {
       '#prefix' => '<div id="algorithm-settings-div">',
       '#suffix' => '</div>',
       '#type' => 'fieldset',
-      '#description' => t('Configure the parameters of the algorithm'),
     ];
 
     $plugin_definition = $algorithm->getPluginDefinition();

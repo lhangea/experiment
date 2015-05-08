@@ -47,3 +47,12 @@ experiment.select:
   requirements:
     _permission: 'access content'
 
+experiment.block.admin_add:
+  path: '/admin/structure/experiment/add'
+  defaults:
+    _controller: '\Drupal\block\Controller\BlockAddController::blockAddConfigureForm'
+    _title: 'Add block to experiment'
+  requirements:
+    _permission: 'access content'
+    # here we need something more like _permission: 'access experiments'
+
