@@ -106,25 +106,93 @@ class ExperimentFormBase extends EntityForm {
       ],
       '#disabled' => !$experiment->isNew(),
     ];
-/*    // @todo Improve the UX for adding blocks and add the feature: select the
-    //   same block but different view modes.
+
+    // Build the list of blocks.
     $blocks = [];
     $definitions = $this->blockManager->getDefinitions();
-
     foreach ($definitions as $plugin_id => $plugin_definition) {
-      // Don't add the placeholder block here.
+      // Don't add the placeholder block.
       if ($plugin_id != 'experiment_block') {
         $blocks[$plugin_id] = $plugin_definition['admin_label'];
       }
     }
 
-    $form['blocks'] = [
+    $form['variations_set'] = [
+      '#title' => $this->t('Variations set'),
+      '#prefix' => '<div id="variations-set">',
+      '#suffix' => '</div>',
+      '#type' => 'fieldset',
+    ];
+    $form['variations_set']['blocks'] = [
       '#type' => 'select',
-      '#title' => $this->t('Blocks'),
+      '#title' => $this->t('Block'),
       '#options' => $blocks,
-      '#default_value' => array_keys($experiment->getBlocks()),
-      '#multiple' => TRUE,
-    ];*/
+      '#empty_option' => $this->t('Select a new block'),
+      '#ajax' => [
+        'callback' => [$this, 'ajaxViewModesCallback'],
+        'wrapper' => 'view-modes',
+        'effect' => 'fade',
+        'progress' => ['type' => 'none'],
+      ],
+    ];
+    // @todo This doesn't return the right results ATM but it is being worked on
+    //   and should be solved soon.
+    $options = $this->entityManager->getViewModeOptions('block_content');
+    $selected_block = $form_state->getValue(['variations_set', 'blocks']);
+    // Check if the block has view modes or not.
+    $has_view_modes = substr($selected_block, 0, strlen('block_content:')) === 'block_content:';
+    $form['variations_set']['container'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'id' => 'view-modes',
+      ],
+    ];
+    $form['variations_set']['container']['view_modes'] = [
+      '#type' => 'select',
+      '#title' => $this->t('View Mode'),
+      '#options' => $options,
+      '#description' => $this->t('Output the block in this view mode.'),
+      '#access' => (count($options) > 1 && $has_view_modes),
+    ];
+    $form['variations_set']['add_block'] = [
+      '#type' => 'submit',
+      '#button_type' => 'primary',
+      '#submit' => [[$this, 'addBlockSubmitCallback']],
+      '#ajax' => [
+        'callback' => [$this, 'addBlockAjaxCallback'],
+        'wrapper' => 'blocks-list',
+        'effect' => 'fade',
+      ],
+      '#limit_validation_errors' => ['variations_set'],
+      '#value' => $this->t('Add Block'),
+    ];
+    $form['variations_set']['blocks_list'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'id' => 'blocks-list',
+      ],
+    ];
+    $form['variations_set']['blocks_list']['table'] = [
+      '#theme' => 'item_list',
+      '#items' => $experiment->getBlocks(),
+    ];
+
+//
+//    $form['variations_set']['add_block'] = [
+//      '#type' => 'link',
+//      '#title' => $this->t('Add a new block'),
+//      '#url' => Url::fromRoute('block.admin_add', [
+//        'plugin_id' => 'experiment_block',
+//        'theme' => 'bartik'
+//      ]),
+//      '#attributes' => [
+//        'class' => array('use-ajax', 'block-filter-text-source'),
+//        'data-accepts' => 'application/vnd.drupal-modal',
+//        'data-dialog-options' => Json::encode(array(
+//          'width' => 700,
+//        )),
+//      ],
+//    ];
 
 //    $form['select_block']['#links'] = array(
 //      'title' => $this->t('Add a new block'),
@@ -140,29 +208,6 @@ class ExperimentFormBase extends EntityForm {
 //        )),
 //      ),
 //    );
-
-    $form['variations_set'] = [
-      '#title' => $this->t('Variations set'),
-      '#prefix' => '<div id="variations-set-div">',
-      '#suffix' => '</div>',
-      '#type' => 'fieldset',
-    ];
-
-    $form['variations_set']['add_block'] = [
-      '#type' => 'link',
-      '#title' => $this->t('Add a new block'),
-      '#url' => Url::fromRoute('block.admin_add', [
-        'plugin_id' => 'experiment_block',
-//        'theme' => 'bartik'
-      ]),
-      '#attributes' => [
-        'class' => array('use-ajax', 'block-filter-text-source'),
-        'data-accepts' => 'application/vnd.drupal-modal',
-        'data-dialog-options' => Json::encode(array(
-          'width' => 700,
-        )),
-      ],
-    ];
 
     // Get a list of all algorithm plugins.
     $algorithms = [];
@@ -213,7 +258,6 @@ class ExperimentFormBase extends EntityForm {
     ];
     $form['settings_fieldset']['algorithm'] = $algorithm->buildConfigurationForm([], $form_state);
 
-    // Return the form.
     return $form;
   }
 
@@ -222,6 +266,32 @@ class ExperimentFormBase extends EntityForm {
    */
   function ajaxAlgorithmSettingsCallback(array $form, FormStateInterface $form_state) {
     return $form['settings_fieldset'];
+  }
+
+  /**
+   * Ajax handler for view modes select box.
+   */
+  function ajaxViewModesCallback(array $form, FormStateInterface $form_state) {
+    return $form['variations_set']['container'];
+  }
+
+  /**
+   * Form submission handler for add block button.
+   */
+  function addBlockSubmitCallback(array $form, FormStateInterface $form_state) {
+    $block = [
+      'id' => $form_state->getValue(['variations_set', 'blocks']),
+      'view_mode' => $form_state->getValue(['variations_set', 'container', 'view_modes']),
+    ];
+    $this->entity->addBlock($block);
+    $form_state->setRebuild();
+  }
+
+  /**
+   * Ajax handler for blocks list.
+   */
+  function addBlockAjaxCallback(array $form, FormStateInterface $form_state) {
+    return $form['variations_set']['blocks_list'];
   }
 
   /**
