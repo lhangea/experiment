@@ -78,12 +78,19 @@ class ExperimentController implements ContainerInjectionInterface {
   public function getBlockContent(ExperimentInterface $experiment) {
     $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($experiment);
     $response = new Response();
-    // @todo See if it actually makes sense to have block instances rather than plugins.
 
-    $block = $this->blockManager->createInstance($algorithm->select());
-    $response->setContent(json_encode(array(
+    $selected_plugin = $algorithm->select();
+    $index = strrpos($selected_plugin, ':');
+    $plugin_id = substr($selected_plugin, 0, $index);
+    $view_mode = substr($selected_plugin, $index + 1, strlen($selected_plugin));
+    $config = [];
+    if ($view_mode) {
+      $config['view_mode'] = $view_mode;
+    }
+    $block = $this->blockManager->createInstance($plugin_id, $config);
+    $response->setContent(json_encode([
       'html' => $this->renderer->render($block->build()),
-    )));
+    ]));
     $response->headers->set('Content-Type', 'application/json');
 
     return $response;

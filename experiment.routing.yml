@@ -51,7 +51,7 @@ experiment.block.admin_add:
   path: '/admin/structure/experiment/add'
   defaults:
     _controller: '\Drupal\block\Controller\BlockAddController::blockAddConfigureForm'
-    _title: 'Add block to experiment'
+    _title: 'Configure success condition for block'
   requirements:
     _permission: 'access content'
     # here we need something more like _permission: 'access experiments'

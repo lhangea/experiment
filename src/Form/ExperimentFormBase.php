@@ -163,6 +163,7 @@ class ExperimentFormBase extends EntityForm {
         'callback' => [$this, 'addBlockAjaxCallback'],
         'wrapper' => 'blocks-list',
         'effect' => 'fade',
+        'progress' => 'none',
       ],
       '#limit_validation_errors' => ['variations_set'],
       '#value' => $this->t('Add Block'),
@@ -175,7 +176,7 @@ class ExperimentFormBase extends EntityForm {
     ];
     $form['variations_set']['blocks_list']['table'] = [
       '#type' => 'table',
-      '#header' => [$this->t('Title'), $this->t('Machine Name'), $this->t('View Mode')],
+      '#header' => [$this->t('Title'), $this->t('Machine Name'), $this->t('View Mode'), $this->t('Operations')],
       '#empty' => t('There are no items yet.'),
     ];
     if (!$form_state->get(['variations_set', 'block_list', 'storage'])) {
@@ -187,48 +188,42 @@ class ExperimentFormBase extends EntityForm {
     }
     // Add the selected blocks to the table.
     foreach ($added_blocks as $id => $added_block) {
-      $form['variations_set']['blocks_list']['table'][$id][] = [
+      $row = [];
+      $row[] = [
         '#markup' => $blocks[$added_block['machine_name']],
       ];
-      $form['variations_set']['blocks_list']['table'][$id][] = [
+      $row[] = [
         '#markup' => $added_block['machine_name'],
       ];
-      $form['variations_set']['blocks_list']['table'][$id][] = [
+      $row[] = [
         '#markup' => $added_block['view_mode'],
       ];
+      $row[] = [
+        '#type' => 'operations',
+        '#links' => [
+          'add_success_condition' => [
+            'title' => $this->t('Configure'),
+            'url' => Url::fromRoute('block.admin_add', [
+              'plugin_id' => 'experiment_block',
+              'theme' => 'bartik'
+            ]),
+            'attributes' => [
+              'class' => ['use-ajax'],
+              'data-accepts' => 'application/vnd.drupal-modal',
+              'data-dialog-options' => Json::encode([
+                'width' => 700,
+              ]),
+            ],
+          ],
+          'remove' => [
+            'title' => $this->t('Remove'),
+            'url' => Url::fromRoute('<front>'),
+          ],
+        ],
+      ];
+
+      $form['variations_set']['blocks_list']['table'][$id] = $row;
     }
-
-//
-//    $form['variations_set']['add_block'] = [
-//      '#type' => 'link',
-//      '#title' => $this->t('Add a new block'),
-//      '#url' => Url::fromRoute('block.admin_add', [
-//        'plugin_id' => 'experiment_block',
-//        'theme' => 'bartik'
-//      ]),
-//      '#attributes' => [
-//        'class' => array('use-ajax', 'block-filter-text-source'),
-//        'data-accepts' => 'application/vnd.drupal-modal',
-//        'data-dialog-options' => Json::encode(array(
-//          'width' => 700,
-//        )),
-//      ],
-//    ];
-
-//    $form['select_block']['#links'] = array(
-//      'title' => $this->t('Add a new block'),
-//      'url' => Url::fromRoute('block.admin_add', [
-//        'plugin_id' => 'experiment',
-//        'theme' => $this->theme
-//      ]),
-//      'attributes' => array(
-//        'class' => array('use-ajax', 'block-filter-text-source'),
-//        'data-accepts' => 'application/vnd.drupal-modal',
-//        'data-dialog-options' => Json::encode(array(
-//          'width' => 700,
-//        )),
-//      ),
-//    );
 
     // Get a list of all algorithm plugins.
     $algorithms = [];
@@ -265,6 +260,8 @@ class ExperimentFormBase extends EntityForm {
       '#ajax' => [
         'callback' => [$this, 'ajaxAlgorithmSettingsCallback'],
         'wrapper' => 'algorithm-settings',
+        'effect' => 'fade',
+        'progress' => 'none',
       ],
     ];
 
@@ -281,6 +278,19 @@ class ExperimentFormBase extends EntityForm {
     // This part is may be different on every form rebuilt based on the
     // selected algorithm.
     $form['algorithm_fieldset']['settings']['form'] = $algorithm->buildConfigurationForm([], $form_state);
+
+//    $form['conditions_fieldset'] = [
+//      '#title' => $this->t('Success conditions'),
+//      '#type' => 'fieldset',
+//    ];
+
+//    $form['conditions_fieldset']['conditions'] = [
+//      '#type' => 'select',
+//      '#options' => [
+//        'click' => 'Click',
+//      ],
+//      '#empty_option' => $this->t('- Select a success condition -'),
+//    ];
 
     return $form;
   }
@@ -429,8 +439,8 @@ class ExperimentFormBase extends EntityForm {
     //   are no changes to the blocks list and to the algorithm configuration
     //   If it remains like this redirect to a confirmation page when updating.
     $this->state->set('experiment.' . $experiment->id(), [
-        'counts' => array_fill_keys($experiment->getBlocks(), 0),
-        'values' => array_fill_keys($experiment->getBlocks(), 0),
+        'counts' => array_fill_keys($experiment->createUniqueKeysForBlocks(), 0),
+        'values' => array_fill_keys($experiment->createUniqueKeysForBlocks(), 0),
       ]
     );
 
