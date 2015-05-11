@@ -96,4 +96,14 @@ class ExperimentController implements ContainerInjectionInterface {
     return $response;
   }
 
+  public function renderBlock($plugin_id, $view_mode) {
+    $config = [];
+    if ($view_mode) {
+      $config['view_mode'] = $view_mode;
+    }
+    $block = $this->blockManager->createInstance($plugin_id, $config);
+
+    return $block->build();
+  }
+
 }

@@ -203,9 +203,9 @@ class ExperimentFormBase extends EntityForm {
         '#links' => [
           'add_success_condition' => [
             'title' => $this->t('Configure'),
-            'url' => Url::fromRoute('block.admin_add', [
-              'plugin_id' => 'experiment_block',
-              'theme' => 'bartik'
+            'url' => Url::fromRoute('experiment.block.admin_configure', [
+              'plugin_id' => $added_block['machine_name'],
+              'view_mode' => $added_block['view_mode'],
             ]),
             'attributes' => [
               'class' => ['use-ajax'],

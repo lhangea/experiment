@@ -47,11 +47,12 @@ experiment.select:
   requirements:
     _permission: 'access content'
 
-experiment.block.admin_add:
-  path: '/admin/structure/experiment/add'
+experiment.block.admin_configure:
+  path: '/admin/structure/experiment/add/{plugin_id}/{view_mode}'
   defaults:
-    _controller: '\Drupal\block\Controller\BlockAddController::blockAddConfigureForm'
+    _controller: '\Drupal\experiment\Controller\ExperimentController::renderBlock'
     _title: 'Configure success condition for block'
+    view_mode: null
   requirements:
     _permission: 'access content'
     # here we need something more like _permission: 'access experiments'
