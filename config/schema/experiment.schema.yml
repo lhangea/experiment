@@ -24,5 +24,12 @@ experiment.experiment.*:
       type: sequence
       label: 'Blocks'
       sequence:
-        - type: string
-          label: 'Block plugin id'
+        - type: mapping
+          label: 'Block'
+          mapping:
+            machine_name:
+              type: string
+              label: 'Machine Name'
+            machine_name:
+              type: string
+              label: 'View Mode'

@@ -158,6 +158,7 @@ class ExperimentFormBase extends EntityForm {
       '#type' => 'submit',
       '#button_type' => 'primary',
       '#submit' => [[$this, 'addBlockSubmitCallback']],
+      '#validate' => [[$this, 'addBlockValidateCallback']],
       '#ajax' => [
         'callback' => [$this, 'addBlockAjaxCallback'],
         'wrapper' => 'blocks-list',
@@ -173,9 +174,29 @@ class ExperimentFormBase extends EntityForm {
       ],
     ];
     $form['variations_set']['blocks_list']['table'] = [
-      '#theme' => 'item_list',
-      '#items' => $experiment->getBlocks(),
+      '#type' => 'table',
+      '#header' => [$this->t('Title'), $this->t('Machine Name'), $this->t('View Mode')],
+      '#empty' => t('There are no items yet.'),
     ];
+    if (!$form_state->get(['variations_set', 'block_list', 'storage'])) {
+      $added_blocks = $experiment->getBlocks();
+      $form_state->set(['variations_set', 'block_list', 'storage'], $experiment->getBlocks());
+    }
+    else {
+      $added_blocks = $form_state->get(['variations_set', 'block_list', 'storage']);
+    }
+    // Add the selected blocks to the table.
+    foreach ($added_blocks as $id => $added_block) {
+      $form['variations_set']['blocks_list']['table'][$id][] = [
+        '#markup' => $blocks[$added_block['machine_name']],
+      ];
+      $form['variations_set']['blocks_list']['table'][$id][] = [
+        '#markup' => $added_block['machine_name'],
+      ];
+      $form['variations_set']['blocks_list']['table'][$id][] = [
+        '#markup' => $added_block['view_mode'],
+      ];
+    }
 
 //
 //    $form['variations_set']['add_block'] = [
@@ -276,14 +297,33 @@ class ExperimentFormBase extends EntityForm {
   }
 
   /**
+   * Form submission handler for add block button validation.
+   */
+  function addBlockValidateCallback(array $form, FormStateInterface $form_state) {
+    $selected_block = [
+      'machine_name' => $form_state->getValue(['variations_set', 'blocks']),
+      'view_mode' => $form_state->getValue(['variations_set', 'container', 'view_modes']),
+    ];
+    $blocks_list = $form_state->get(['variations_set', 'block_list', 'storage']) ? $form_state->get(['variations_set', 'block_list', 'storage']) : [];
+    foreach ($blocks_list as $block) {
+      if ($selected_block['machine_name'] == $block['machine_name'] && $selected_block['view_mode'] == $block['view_mode']) {
+        // @todo This doesn't work. Need to figure it out.
+        $form_state->setErrorByName('variations_set', $this->t('You cannot add the same variation twice'));
+      }
+    }
+  }
+
+  /**
    * Form submission handler for add block button.
    */
   function addBlockSubmitCallback(array $form, FormStateInterface $form_state) {
     $block = [
-      'id' => $form_state->getValue(['variations_set', 'blocks']),
+      'machine_name' => $form_state->getValue(['variations_set', 'blocks']),
       'view_mode' => $form_state->getValue(['variations_set', 'container', 'view_modes']),
     ];
-    $this->entity->addBlock($block);
+    $blocks_list = $form_state->get(['variations_set', 'block_list', 'storage']) ? $form_state->get(['variations_set', 'block_list', 'storage']) : [];
+    $blocks_list[] = $block;
+    $form_state->set(['variations_set', 'block_list', 'storage'], $blocks_list);
     $form_state->setRebuild();
   }
 
@@ -368,6 +408,8 @@ class ExperimentFormBase extends EntityForm {
     // Update the original form values.
     $form_state->setValue(['settings_fieldset', 'algorithm'], $algorithm_config->getValues());
     $experiment->setAlgorithmConfig($algorithm->getConfiguration());
+
+    $experiment->setBlocks($form_state->get(['variations_set', 'block_list', 'storage']));
 
     // Drupal already populated the form values in the entity object. Each
     // form field was saved as a public variable in the entity class. PHP
