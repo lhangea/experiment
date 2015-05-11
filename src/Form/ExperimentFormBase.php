@@ -240,12 +240,12 @@ class ExperimentFormBase extends EntityForm {
 
     // Since the form builder is called after every AJAX request, we rebuild
     // the form based on $form_state.
-    $selected_algorithm = $form_state->getValue('algorithm');
+    $selected_algorithm = $form_state->getValue(['algorithm_fieldset', 'algorithm']);
     $algorithm_id = ($selected_algorithm) ? $selected_algorithm : $experiment->getAlgorithmId();
 
     // If there isn't any algorithm selected i.e. first time when adding a new
     // experiment page is requested select the first algorithm as default.
-    if ($experiment->isNew()) {
+    if (!$algorithm_id) {
       reset($algorithms);
       $algorithm_id = key($algorithms);
     }
@@ -253,31 +253,34 @@ class ExperimentFormBase extends EntityForm {
 
     $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($experiment);
 
-    $form['algorithm'] = [
+    $form['algorithm_fieldset'] = [
       '#title' => $this->t('Algorithm'),
+      '#type' => 'fieldset',
+    ];
+    $form['algorithm_fieldset']['algorithm'] = [
+      '#title' => $this->t('Select Algorithm'),
       '#type' => 'select',
       '#options' => $algorithms,
       '#default_value' => $algorithm_id,
       '#ajax' => [
         'callback' => [$this, 'ajaxAlgorithmSettingsCallback'],
-        'wrapper' => 'algorithm-settings-div',
-        'effect' => 'fade',
-        'progress' => ['type' => 'none'],
+        'wrapper' => 'algorithm-settings',
       ],
     ];
 
-    $form['settings_fieldset'] = [
-      '#title' => $this->t('Algorithm settings'),
-      '#prefix' => '<div id="algorithm-settings-div">',
-      '#suffix' => '</div>',
-      '#type' => 'fieldset',
+    $form['algorithm_fieldset']['settings'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'id' => 'algorithm-settings',
+      ],
     ];
-
     $plugin_definition = $algorithm->getPluginDefinition();
-    $form['settings_fieldset']['description'] = [
+    $form['algorithm_fieldset']['settings']['description'] = [
       '#markup' => $plugin_definition['description'],
     ];
-    $form['settings_fieldset']['algorithm'] = $algorithm->buildConfigurationForm([], $form_state);
+    // This part is may be different on every form rebuilt based on the
+    // selected algorithm.
+    $form['algorithm_fieldset']['settings']['form'] = $algorithm->buildConfigurationForm([], $form_state);
 
     return $form;
   }
@@ -286,7 +289,7 @@ class ExperimentFormBase extends EntityForm {
    * Ajax handler for algorithm settings.
    */
   function ajaxAlgorithmSettingsCallback(array $form, FormStateInterface $form_state) {
-    return $form['settings_fieldset'];
+    return $form['algorithm_fieldset']['settings'];
   }
 
   /**
@@ -383,13 +386,13 @@ class ExperimentFormBase extends EntityForm {
     $form_state->cleanValues();
     // The algorithm configuration is stored in the 'algorithm' key in the form,
     // pass that through form submission.
-    $algorithm_config = (new FormState())->setValues($form_state->getValue(['settings_fieldset', 'algorithm']));
+    $algorithm_config = (new FormState())->setValues($form_state->getValue(['algorithm_fieldset', 'settings', 'form']));
     $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($this->getEntity());
     $algorithm->validateConfigurationForm($form, $algorithm_config);
 
     // Update the original form values.
     // @todo i don't know why do we have to do this!!
-    $form_state->setValue(['settings_fieldset', 'algorithm'], $algorithm_config->getValues());
+    $form_state->setValue(['algorithm_fieldset', 'settings', 'form'], $algorithm_config->getValues());
   }
 
   /**
@@ -402,11 +405,11 @@ class ExperimentFormBase extends EntityForm {
     $form_state->cleanValues();
     // The algorithm configuration is stored in the 'algorithm' key in the form,
     // pass that through form submission.
-    $algorithm_config = (new FormState())->setValues($form_state->getValue(['settings_fieldset', 'algorithm']));
+    $algorithm_config = (new FormState())->setValues($form_state->getValue(['algorithm_fieldset', 'settings', 'form']));
     $algorithm->submitConfigurationForm($form, $algorithm_config);
 
     // Update the original form values.
-    $form_state->setValue(['settings_fieldset', 'algorithm'], $algorithm_config->getValues());
+    $form_state->setValue(['algorithm_fieldset', 'settings', 'form'], $algorithm_config->getValues());
     $experiment->setAlgorithmConfig($algorithm->getConfiguration());
 
     $experiment->setBlocks($form_state->get(['variations_set', 'block_list', 'storage']));
@@ -421,7 +424,7 @@ class ExperimentFormBase extends EntityForm {
     $url = $experiment->urlInfo();
 
     // Create an edit link.
-    $edit_link = $this->l(t('Edit'), $url);
+    $edit_link = $this->l($this->t('Edit'), $url);
     // @todo study the possibility of not resetting the experiment if there
     //   are no changes to the blocks list and to the algorithm configuration
     //   If it remains like this redirect to a confirmation page when updating.
