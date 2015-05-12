@@ -9,7 +9,9 @@
      */
     Drupal.behaviors.experimentClickSuccessCondition = {
         attach: function(context) {
-            $( ".region-content" ).selectable({ filter: 'a' });
+            $("#drupal-modal div").selectable({
+                filter: "a"
+            });
         }
     }
 

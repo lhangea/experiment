@@ -1,6 +1,7 @@
-a.ui-selectee {
-  background: #ccc;
+input.ui-selected, a.ui-selected {
+    background-color: #74b7ff;
 }
-a.ui-selected {
-  background: green;
+
+a.ui-selected img {
+    box-shadow:0px 12px 22px 1px #74b7ff;
 }
