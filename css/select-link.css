@@ -1,0 +1,6 @@
+a.ui-selectee {
+  background: #ccc;
+}
+a.ui-selected {
+  background: green;
+}

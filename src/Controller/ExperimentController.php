@@ -103,7 +103,10 @@ class ExperimentController implements ContainerInjectionInterface {
     }
     $block = $this->blockManager->createInstance($plugin_id, $config);
 
-    return $block->build();
+    $build = $block->build();
+    $build['#attached']['library'] = ['experiment/experiment.select'];
+
+    return $build;
   }
 
 }
