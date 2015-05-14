@@ -59,6 +59,7 @@ class BlockPreviewForm extends FormBase {
     // in the footer of the modal window.
     $form['block']['actions'] = $form['block']['actions']['submit'];
     $form['#attached']['library'] = ['experiment/experiment.select'];
+    $form['#attached']['drupalSettings']['selectedLinks'] = [0, 1];
     $form['actions']['#type'] = 'actions';
     $form['actions']['submit'] = [
       '#type' => 'submit',
