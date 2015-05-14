@@ -10,12 +10,15 @@ namespace Drupal\experiment\Controller;
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\experiment\ExperimentInterface;
 use Drupal\experiment\MABAlgorithmManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class ExperimentController implements ContainerInjectionInterface {
+
+  use StringTranslationTrait;
 
   /**
    * The block manager.
@@ -94,19 +97,6 @@ class ExperimentController implements ContainerInjectionInterface {
     $response->headers->set('Content-Type', 'application/json');
 
     return $response;
-  }
-
-  public function renderBlock($plugin_id, $view_mode) {
-    $config = [];
-    if ($view_mode) {
-      $config['view_mode'] = $view_mode;
-    }
-    $block = $this->blockManager->createInstance($plugin_id, $config);
-
-    $build = $block->build();
-    $build['#attached']['library'] = ['experiment/experiment.select'];
-
-    return $build;
   }
 
 }

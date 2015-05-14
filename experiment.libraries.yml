@@ -6,10 +6,8 @@ experiment.select:
   version: VERSION
   css:
     theme:
-      css/jquery-ui.css: {}
       css/select-link.css: {}
   js:
-    js/jquery-ui.js: {}
     js/select-link.js: {}
   dependencies:
     - core/jquery

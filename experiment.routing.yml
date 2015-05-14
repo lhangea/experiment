@@ -50,7 +50,7 @@ experiment.select:
 experiment.block.admin_configure:
   path: '/admin/structure/experiment/add/{plugin_id}/{view_mode}'
   defaults:
-    _controller: '\Drupal\experiment\Controller\ExperimentController::renderBlock'
+    _form: '\Drupal\experiment\Form\BlockPreviewForm'
     _title: 'Configure success condition for block'
     view_mode: null
   requirements:
