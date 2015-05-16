@@ -41,11 +41,20 @@ entity.experiment.delete_form:
     _admin_route: TRUE
 
 experiment.select:
-  path: '/experiments/{experiment}'
+  path: '/experiment/{experiment}'
   defaults:
     _controller: '\Drupal\experiment\Controller\ExperimentController::getBlockContent'
   requirements:
     _permission: 'access content'
+    _method: GET
+
+experiment.update:
+  path: '/experiment/{experiment}'
+  defaults:
+    _controller: '\Drupal\experiment\Controller\ExperimentController::updateExperimentResults'
+  requirements:
+    _permission: 'access content'
+    _method: POST
 
 experiment.block.admin_configure:
   path: '/admin/structure/experiment/add/{plugin_id}/{view_mode}/{selected_links}'

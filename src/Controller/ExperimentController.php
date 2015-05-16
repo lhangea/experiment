@@ -7,6 +7,7 @@
 
 namespace Drupal\experiment\Controller;
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Render\RendererInterface;
@@ -14,6 +15,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\experiment\ExperimentInterface;
 use Drupal\experiment\MABAlgorithmManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class ExperimentController implements ContainerInjectionInterface {
@@ -83,6 +85,9 @@ class ExperimentController implements ContainerInjectionInterface {
     $response = new Response();
 
     $selected_plugin = $algorithm->select();
+    $values = \Drupal::state()->get('experiment.' . $experiment->id());
+    $values['counts'][$selected_plugin] += 1;
+    \Drupal::state()->set('experiment.' . $experiment->id(), $values);
     $index = strrpos($selected_plugin, ':');
     $plugin_id = substr($selected_plugin, 0, $index);
     $view_mode = substr($selected_plugin, $index + 1, strlen($selected_plugin));
@@ -90,13 +95,30 @@ class ExperimentController implements ContainerInjectionInterface {
     if ($view_mode) {
       $config['view_mode'] = $view_mode;
     }
-    $block = $this->blockManager->createInstance($plugin_id, $config);
-    $response->setContent(json_encode([
-      'html' => $this->renderer->render($block->build()),
+    $blocks = $experiment->getBlocks();
+    $selected_links = [];
+    foreach ($blocks as $block) {
+      if ($block['machine_name'] == $plugin_id && $block['view_mode'] == $view_mode) {
+        $selected_links = array_map('intval', explode(',', $block['selected_links']));
+      }
+    }
+    $selected_block = $this->blockManager->createInstance($plugin_id, $config);
+    $response->setContent(JSON::encode([
+      'block_html' => $this->renderer->render($selected_block->build()),
+      'selected_plugin' => $selected_plugin,
+      'selected_links' => $selected_links,
     ]));
     $response->headers->set('Content-Type', 'application/json');
 
     return $response;
+  }
+
+  public function updateExperimentResults(ExperimentInterface $experiment, Request $request) {
+    $parameters = $request->request->all();
+    $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($experiment);
+    $algorithm->update($parameters['variation_id'], $parameters['reward']);
+
+    return new Response($this->t('The experiment results were successfully updated'), 201);
   }
 
 }

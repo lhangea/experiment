@@ -46,14 +46,16 @@ class EpsilonGreedy extends MABAlgorithmBase {
     // Get the current values.
     $results = $this->state->get('experiment.' . $this->configuration['experiment_id']);
 
-    $results['counts'][$variation_id] += 1;
+    // The counts vector is incremented when returning the selected variation
+    // and not here for performance reasons.
+    // $results['counts'][$variation_id] += 1;
     $n = $results['counts'][$variation_id];
 
     $value = $results['values'][$variation_id];
-    $new_value = (($n - 1) / (float)$n) * $value + (1 / (float)$n) * $reward;
+    $new_value = (($n - 1) / (float)$n) * $value + (1 / (float)$n) * (float)$reward;
     $results['values'][$variation_id] = $new_value;
 
-    $this->state->get('experiment.' . $this->configuration['experiment_id'], $results);
+    $this->state->set('experiment.' . $this->configuration['experiment_id'], $results);
   }
 
 }
