@@ -7,6 +7,10 @@
 
 namespace Drupal\experiment\Form;
 
+use Drupal\Component\Serialization\Json;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\CloseDialogCommand;
+use Drupal\Core\Ajax\InvokeCommand;
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -51,7 +55,7 @@ class BlockPreviewForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $plugin_id = NULL, $view_mode = 'default') {
+  public function buildForm(array $form, FormStateInterface $form_state, $plugin_id = NULL, $view_mode = NULL, $selected_links = NULL) {
     $block = $this->blockManager->createInstance($plugin_id, ['view_mode' => $view_mode]);
 
     $form['block'] = $block->build();
@@ -59,7 +63,13 @@ class BlockPreviewForm extends FormBase {
     // in the footer of the modal window.
     $form['block']['actions'] = $form['block']['actions']['submit'];
     $form['#attached']['library'] = ['experiment/experiment.select'];
-    $form['#attached']['drupalSettings']['selectedLinks'] = [0, 1];
+    $hidden_input_name = ($view_mode) ? $plugin_id . ':' . $view_mode : $plugin_id;
+    $form['#attached']['drupalSettings']['selectedLinks'] = JSON::decode($selected_links);
+    $form['#attached']['drupalSettings']['hiddenInputName'] = $hidden_input_name;
+    // We need to have this values in the ajax callback so that we can select
+    // the element associated with this block.
+    $form['plugin_id'] = ['#type' => 'hidden', '#value' => $plugin_id];
+    $form['view_mode'] = ['#type' => 'hidden', '#value' => $view_mode];
     $form['actions']['#type'] = 'actions';
     $form['actions']['submit'] = [
       '#type' => 'submit',
@@ -67,17 +77,35 @@ class BlockPreviewForm extends FormBase {
       '#value' => $this->t('Save'),
       '#attributes' => [
         'class' => ['allowed-submit'],
-      ]
+      ],
+      '#ajax' => [
+        'callback' => [$this, 'dialogSaveAndClose'],
+      ],
     ];
 
     return $form;
   }
 
   /**
+   * Returns an AjaxResponse with command to save and close the dialog.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   *   The JSON response object.
+   */
+  public function dialogSaveAndClose(array &$form, FormStateInterface $form_state) {
+    $response = new AjaxResponse();
+    $response->addCommand(new CloseDialogCommand('#drupal-modal'));
+
+    return $response;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    drupal_set_message($this->t('Success conditions configured successfully.'));
-    $form_state->setRedirect('entity.experiment.list');
+    // We need to have this method to implement the interface but in this case
+    // we will not use it since we will "submit" the form through ajax.
+    // Note that this method is executed before the ajax call.
   }
+
 }

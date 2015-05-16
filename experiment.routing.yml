@@ -48,7 +48,7 @@ experiment.select:
     _permission: 'access content'
 
 experiment.block.admin_configure:
-  path: '/admin/structure/experiment/add/{plugin_id}/{view_mode}'
+  path: '/admin/structure/experiment/add/{plugin_id}/{view_mode}/{selected_links}'
   defaults:
     _form: '\Drupal\experiment\Form\BlockPreviewForm'
     _title: 'Configure success condition for block'

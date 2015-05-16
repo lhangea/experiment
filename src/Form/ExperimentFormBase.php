@@ -128,6 +128,9 @@ class ExperimentFormBase extends EntityForm {
       '#title' => $this->t('Block'),
       '#options' => $blocks,
       '#empty_option' => $this->t('Select a new block'),
+      '#attributes' => [
+        'class' => ['block-select'],
+      ],
       '#ajax' => [
         'callback' => [$this, 'ajaxViewModesCallback'],
         'wrapper' => 'view-modes',
@@ -186,8 +189,23 @@ class ExperimentFormBase extends EntityForm {
     else {
       $added_blocks = $form_state->get(['variations_set', 'block_list', 'storage']);
     }
+    $form['variations_set']['blocks_list']['hidden_values'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'id' => 'hidden-values',
+      ],
+    ];
     // Add the selected blocks to the table.
     foreach ($added_blocks as $id => $added_block) {
+      $variable_name = $added_block['machine_name'];
+      $variable_name .= ($added_block['view_mode']) ? ':' . $added_block['view_mode'] : '';
+      // @todo This is a workaround. Usually the form state should contain the
+      //   proper values (input type hidden modified by javascript) on rebuild
+      //   but id doesn't. File a bug for this.
+      $user_input = $form_state->getUserInput();
+      if ($user_input[$variable_name] != '') {
+        $form_state->setValue(['variations_set', 'blocks_list', 'hidden_values', $variable_name], $user_input[$variable_name]);
+      }
       $row = [];
       $row[] = [
         '#markup' => $blocks[$added_block['machine_name']],
@@ -198,6 +216,13 @@ class ExperimentFormBase extends EntityForm {
       $row[] = [
         '#markup' => $added_block['view_mode'],
       ];
+
+      if ($form_state->getValue(['variations_set', 'blocks_list', 'hidden_values', $variable_name]) === NULL) {
+        $links = [-1];
+      }
+      else {
+        $links = $form_state->getValue(['variations_set', 'blocks_list', 'hidden_values', $variable_name]);
+      }
       $row[] = [
         '#type' => 'operations',
         '#links' => [
@@ -206,6 +231,7 @@ class ExperimentFormBase extends EntityForm {
             'url' => Url::fromRoute('experiment.block.admin_configure', [
               'plugin_id' => $added_block['machine_name'],
               'view_mode' => $added_block['view_mode'],
+              'selected_links' => Json::encode($links),
             ]),
             'attributes' => [
               'class' => ['use-ajax'],
@@ -221,9 +247,27 @@ class ExperimentFormBase extends EntityForm {
           ],
         ],
       ];
-
       $form['variations_set']['blocks_list']['table'][$id] = $row;
+      $form['variations_set']['blocks_list']['hidden_values'][$variable_name] = [
+        '#type' => 'hidden',
+        // @todo These should also come from configuration.
+        '#default_value' => $form_state->getValue(['variations_set', 'blocks_list', 'hidden_values', $variable_name]),
+        '#name' => $variable_name,
+      ];
     }
+
+    $form['variations_set']['unused'] = [
+      '#type' => 'textfield',
+//      '#access' => FALSE,
+      '#attributes' => [
+        'class' => ['block-form-rebuild'],
+      ],
+      '#ajax' => [
+        'callback' => [$this, 'addBlockAjaxCallback'],
+        'event' => 'change',
+        'wrapper' => 'blocks-list',
+      ],
+    ];
 
     // Get a list of all algorithm plugins.
     $algorithms = [];
@@ -293,6 +337,13 @@ class ExperimentFormBase extends EntityForm {
 //    ];
 
     return $form;
+  }
+
+  /**
+   *
+   */
+  function ajaxRebuildForm(array $form, FormStateInterface $form_state) {
+    return $form['variations_set']['blocks_list']['hidden_values'];
   }
 
   /**

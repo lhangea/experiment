@@ -19,6 +19,23 @@
                         $(this).toggleClass("condition-selectee").toggleClass("condition-selected");
                     });
             });
+            // When clicking on save button change the values of the hidden
+            // input fields for this block. The closing of the modal is done
+            // by a Drupal Ajax Command.
+            $(".allowed-submit").click(function() {
+                var links = $("#drupal-modal").find("div a, input[type=submit]:not('.allowed-submit'), button");
+                var selected = [];
+                links.each(function( index, element ) {
+                    if ($(this).hasClass("condition-selected")) {
+                        selected.push(index);
+                    }
+                });
+                if (selected.length == 0) {
+                    selected.push(-1);
+                }
+                $("input[name=\"" + drupalSettings.hiddenInputName + "\"]").val(selected);
+                $(".block-form-rebuild").trigger('change');
+            });
         }
     }
 
