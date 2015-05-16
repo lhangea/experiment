@@ -217,11 +217,15 @@ class ExperimentFormBase extends EntityForm {
         '#markup' => $added_block['view_mode'],
       ];
 
-      if ($form_state->getValue(['variations_set', 'blocks_list', 'hidden_values', $variable_name]) === NULL) {
-        $links = [-1];
-      }
-      else {
-        $links = $form_state->getValue(['variations_set', 'blocks_list', 'hidden_values', $variable_name]);
+      $selected_links = $form_state->getValue(['variations_set', 'blocks_list', 'hidden_values', $variable_name]);
+      // @todo Find a better way to store the values in the config entity.
+      //   Separate the success condition configuration from selected blocks.
+      if ($selected_links === NULL) {
+        foreach ($added_blocks as $block) {
+          if ($block['machine_name'] == $added_block['machine_name'] && $block['view_mode'] == $added_block['view_mode']) {
+            $selected_links = $block['selected_links'];
+          }
+        }
       }
       $row[] = [
         '#type' => 'operations',
@@ -231,7 +235,7 @@ class ExperimentFormBase extends EntityForm {
             'url' => Url::fromRoute('experiment.block.admin_configure', [
               'plugin_id' => $added_block['machine_name'],
               'view_mode' => $added_block['view_mode'],
-              'selected_links' => Json::encode($links),
+              'selected_links' => Json::encode($selected_links),
             ]),
             'attributes' => [
               'class' => ['use-ajax'],
@@ -250,8 +254,7 @@ class ExperimentFormBase extends EntityForm {
       $form['variations_set']['blocks_list']['table'][$id] = $row;
       $form['variations_set']['blocks_list']['hidden_values'][$variable_name] = [
         '#type' => 'hidden',
-        // @todo These should also come from configuration.
-        '#default_value' => $form_state->getValue(['variations_set', 'blocks_list', 'hidden_values', $variable_name]),
+        '#default_value' => $selected_links,
         '#name' => $variable_name,
       ];
     }
@@ -452,7 +455,7 @@ class ExperimentFormBase extends EntityForm {
     $algorithm->validateConfigurationForm($form, $algorithm_config);
 
     // Update the original form values.
-    // @todo i don't know why do we have to do this!!
+    // @todo I don't know why do we have to do this!!
     $form_state->setValue(['algorithm_fieldset', 'settings', 'form'], $algorithm_config->getValues());
   }
 
@@ -473,8 +476,13 @@ class ExperimentFormBase extends EntityForm {
     $form_state->setValue(['algorithm_fieldset', 'settings', 'form'], $algorithm_config->getValues());
     $experiment->setAlgorithmConfig($algorithm->getConfiguration());
 
-    $experiment->setBlocks($form_state->get(['variations_set', 'block_list', 'storage']));
-
+    $added_blocks = $form_state->get(['variations_set', 'block_list', 'storage']);
+    foreach ($added_blocks as $key => $block) {
+      $element_name = $block['machine_name'];
+      $element_name .= ($block['view_mode']) ? ':' . $block['view_mode'] : '';
+      $added_blocks[$key]['selected_links'] = $form_state->getValue(['variations_set', 'blocks_list', 'hidden_values', $element_name]);
+    }
+    $experiment->setBlocks($added_blocks);
     // Drupal already populated the form values in the entity object. Each
     // form field was saved as a public variable in the entity class. PHP
     // allows Drupal to do this even if the method is not defined ahead of

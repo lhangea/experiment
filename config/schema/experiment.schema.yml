@@ -33,3 +33,6 @@ experiment.experiment.*:
             machine_name:
               type: string
               label: 'View Mode'
+            machine_name:
+              type: string
+              label: 'Selected links'
