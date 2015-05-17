@@ -101,33 +101,21 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    $form['epsilon'] = [
-      '#type' => 'textfield',
-      '#title' => t('Epsilon'),
-      '#default_value' => (isset($this->configuration['epsilon'])) ? $this->configuration['epsilon'] : NULL,
-      '#size' => 60,
-      '#maxlength' => 128,
-      '#required' => TRUE,
-    ];
-
-    return $form;
+    return [];
   }
 
   /**
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-    // Validate the epsilon for values between 0 and 1 inclusive.
-    if (!$this->isFloatBetweenZeroAndOne($form_state->getValue('epsilon'))) {
-      $form_state->setErrorByName('epsilon', $this->t('Epsilon value must be a decimal between 0 and 1'));
-    }
+
   }
 
   /**
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $this->configuration['epsilon'] = $form_state->getValue('epsilon');
+
   }
 
   /**

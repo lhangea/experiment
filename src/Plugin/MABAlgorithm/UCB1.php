@@ -7,7 +7,6 @@
 
 namespace Drupal\experiment\Plugin\MABAlgorithm;
 
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\experiment\MABAlgorithmBase;
 
 /**
@@ -55,27 +54,6 @@ class UCB1 extends MABAlgorithmBase {
   public function updateAverageWithReward($variation_id, $reward)
   {
     parent::updateAverageWithReward($variation_id, $reward);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    return [];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
-
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-
   }
 
 }
