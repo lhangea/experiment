@@ -157,14 +157,21 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
     $max_key = -1;
     $max_val = -1;
 
-    foreach ($array as $key => $value) {
-      if ($value > $max_val) {
-        $max_key = $key;
-        $max_val = $value;
-      }
+    // Logical or between all array elements to determine if we are right after
+    // a new experiment has been initialized.
+    $initial = !in_array(TRUE, $array, FALSE);
+    if ($initial) {
+      return array_rand($array);
     }
-
-    return $max_key;
+    else {
+      foreach ($array as $key => $value) {
+        if ($value > $max_val) {
+          $max_key = $key;
+          $max_val = $value;
+        }
+      }
+      return $max_key;
+    }
   }
 
   /**
@@ -193,6 +200,35 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
       'values' => $this->values,
     ];
     $this->state->set('experiment.' . $this->configuration['experiment_id'], $results);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function updateAverageWithNullReward($variation_id)
+  {
+    // Only update if the variation returned belongs to the experiment.
+    if (isset($this->counts[$variation_id])) {
+      $this->counts[$variation_id] += 1;
+      $n = $this->counts[$variation_id];
+      $value = $this->values[$variation_id];
+      $new_value = (($n - 1) / (float)$n) * $value;
+      $this->values[$variation_id] = $new_value;
+      $this->saveResults();
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function updateAverageWithReward($variation_id, $reward)
+  {
+    // Only update if the variation returned belongs to the experiment.
+    if (isset($this->values[$variation_id])) {
+      $n = $this->counts[$variation_id];
+      $this->values[$variation_id] += (1 / (float)$n) * (float)$reward;
+      $this->saveResults();
+    }
   }
 
 }

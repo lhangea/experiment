@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains the Epsilon greedy algorithm.
+ * Contains the Epsilon greedy algorithm plugin.
  */
 
 namespace Drupal\experiment\Plugin\MABAlgorithm;
@@ -15,7 +15,7 @@ use Drupal\experiment\MABAlgorithmBase;
  * @MABAlgorithm(
  *   id = "epsilon_greedy",
  *   label = @Translation("Epsilon greedy"),
- *   description = @Translation("Epsilon greedy exploration is a strategy that randomly picks a variation with probability epsilon and will display the best known variation otherwise."),
+ *   description = @Translation("Epsilon greedy exploration is a strategy that randomly picks a variation with probability epsilon and displays the best known variation otherwise (probability 1 - epsilon). This algorithm can also behave like traditional A/B testing if epsilon is set to 1. In that case it will randomly display variations and collect results."),
  * )
  */
 class EpsilonGreedy extends MABAlgorithmBase {
@@ -39,13 +39,7 @@ class EpsilonGreedy extends MABAlgorithmBase {
    */
   public function updateAverageWithNullReward($variation_id)
   {
-    $this->counts[$variation_id] += 1;
-    $n = $this->counts[$variation_id];
-    $value = $this->values[$variation_id];
-    $new_value = (($n - 1) / (float)$n) * $value;
-    $this->values[$variation_id] = $new_value;
-
-    $this->saveResults();
+    parent::updateAverageWithNullReward($variation_id);
   }
 
   /**
@@ -53,8 +47,7 @@ class EpsilonGreedy extends MABAlgorithmBase {
    */
   public function updateAverageWithReward($variation_id, $reward)
   {
-    $n = $this->counts[$variation_id];
-    $this->values[$variation_id] += (1 / (float)$n) * (float)$reward;
-    $this->saveResults();
+    parent::updateAverageWithReward($variation_id, $reward);
   }
+
 }
