@@ -11,3 +11,9 @@ experiment.select:
     js/select-link.js: {}
   dependencies:
     - core/jquery
+
+experiment.admin:
+  version: VERSION
+  css:
+    theme:
+      css/admin.css: {}

@@ -169,6 +169,12 @@ class ExperimentFormBase extends EntityForm {
         'progress' => 'none',
       ],
       '#limit_validation_errors' => ['variations_set'],
+      '#attributes' => [
+        'id' => 'add-block-button' ,
+      ],
+      '#attached' => [
+        'library' => ['experiment/experiment.admin'],
+      ],
       '#value' => $this->t('Add Block'),
     ];
     $form['variations_set']['blocks_list'] = [
@@ -207,15 +213,9 @@ class ExperimentFormBase extends EntityForm {
         $form_state->setValue(['variations_set', 'blocks_list', 'hidden_values', $variable_name], $user_input[$variable_name]);
       }
       $row = [];
-      $row[] = [
-        '#markup' => $blocks[$added_block['machine_name']],
-      ];
-      $row[] = [
-        '#markup' => $added_block['machine_name'],
-      ];
-      $row[] = [
-        '#markup' => $added_block['view_mode'],
-      ];
+      $row[]['#markup'] = $blocks[$added_block['machine_name']];
+      $row[]['#markup'] = $added_block['machine_name'];
+      $row[]['#markup'] = $added_block['view_mode'];
 
       $selected_links = $form_state->getValue(['variations_set', 'blocks_list', 'hidden_values', $variable_name]);
       // @todo Find a better way to store the values in the config entity.
