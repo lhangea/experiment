@@ -11,6 +11,7 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\Core\State\StateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\experiment\ExperimentInterface;
 use Drupal\experiment\MABAlgorithmManagerInterface;
@@ -44,6 +45,11 @@ class ExperimentController implements ContainerInjectionInterface {
   protected $renderer;
 
   /**
+   * @var \Drupal\Core\State\StateInterface
+   */
+  protected $state;
+
+  /**
    * Constructs an ExperimentController object.
    *
    * @param \Drupal\Core\Block\BlockManagerInterface $block_manager
@@ -52,11 +58,14 @@ class ExperimentController implements ContainerInjectionInterface {
    *   The multi armed bandit algorithm manager.
    * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The renderer service.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
    */
-  public function __construct(BlockManagerInterface $block_manager, MABAlgorithmManagerInterface $mab_algorithm_manager, RendererInterface $renderer) {
+  public function __construct(BlockManagerInterface $block_manager, MABAlgorithmManagerInterface $mab_algorithm_manager, RendererInterface $renderer, StateInterface $state) {
     $this->blockManager = $block_manager;
     $this->mabAlgorithmManager = $mab_algorithm_manager;
     $this->renderer = $renderer;
+    $this->state = $state;
   }
 
   /**
@@ -67,7 +76,8 @@ class ExperimentController implements ContainerInjectionInterface {
     return new static(
       $container->get('plugin.manager.block'),
       $container->get('plugin.manager.mab_algorithm'),
-      $container->get('renderer')
+      $container->get('renderer'),
+      $container->get('state')
     );
   }
 
@@ -85,9 +95,9 @@ class ExperimentController implements ContainerInjectionInterface {
     $response = new Response();
 
     $selected_plugin = $algorithm->select();
-    $values = \Drupal::state()->get('experiment.' . $experiment->id());
+    $values = $this->state->get('experiment.' . $experiment->id());
     $values['counts'][$selected_plugin] += 1;
-    \Drupal::state()->set('experiment.' . $experiment->id(), $values);
+    $this->state->set('experiment.' . $experiment->id(), $values);
     $index = strrpos($selected_plugin, ':');
     $plugin_id = substr($selected_plugin, 0, $index);
     $view_mode = substr($selected_plugin, $index + 1, strlen($selected_plugin));
@@ -119,6 +129,38 @@ class ExperimentController implements ContainerInjectionInterface {
     $algorithm->update($parameters['variation_id'], $parameters['reward']);
 
     return new Response($this->t('The experiment results were successfully updated'), 201);
+  }
+
+  /**
+   * Results page for an experiment.
+   *
+   * @param ExperimentInterface $experiment
+   *   The experiment entity.
+   *
+   * @return array
+   *   Render array containing the results.
+   */
+  public function experimentResults(ExperimentInterface $experiment) {
+    $build = [];
+    $blocks = $experiment->getBlocks();
+    $results = $this->state->get('experiment.' . $experiment->id());
+    $build['experiment_name'] = [
+      '#markup' => '<h2>' . $this->t('Results for ') . '<em>' . $experiment->label() . '</em></h2>',
+    ];
+    $build['table'] = [
+      '#type' => 'table',
+      '#header' => [$this->t('Block'), $this->t('View Mode'), $this->t('Impressions'), $this->t('Value')],
+    ];
+    foreach ($blocks as $block) {
+      $definition = $this->blockManager->getDefinition($block['machine_name']);
+      $id = ($block['view_mode']) ? $block['machine_name'] . ':' . $block['view_mode'] : $block['machine_name'];
+      $build['table'][$id][]['#markup'] = $this->t($definition['admin_label']);
+      $build['table'][$id][]['#markup'] = $block['view_mode'];
+      $build['table'][$id][]['#markup'] = $results['counts'][$id];
+      $build['table'][$id][]['#markup'] = $results['values'][$id];
+    }
+
+    return $build;
   }
 
 }

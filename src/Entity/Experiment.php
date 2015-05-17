@@ -136,14 +136,14 @@ class Experiment extends ConfigEntityBase implements ExperimentInterface {
    * Creates an array of unique keys needed by the algorithm.
    *
    * In case we have the same block but with a different view modes, they need
-   * to hae different keys, so that's why we concatenate the plugin id with the
+   * to have different keys, so that's why we concatenate the plugin id with the
    * view mode separated by : sign.
    */
-  public function  createUniqueKeysForBlocks() {
+  public function createUniqueKeysForBlocks() {
     $blocks = $this->getBlocks();
     $keys = [];
     foreach ($blocks as $block) {
-      $keys[] = $block['machine_name'] . ':' . $block['view_mode'];
+      $keys[] = ($block['view_mode']) ? $block['machine_name'] . ':' . $block['view_mode'] : $block['machine_name'];
     }
 
     return $keys;

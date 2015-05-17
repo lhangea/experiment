@@ -9,9 +9,10 @@ namespace Drupal\experiment\Controller;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Url;
 
 /**
- * Provides a listing of experiment entities.
+ * Provides a listing of experiment config entities.
  */
 class ExperimentListBuilder extends ConfigEntityListBuilder {
 
@@ -26,8 +27,7 @@ class ExperimentListBuilder extends ConfigEntityListBuilder {
   public function buildHeader() {
     $header['label'] = $this->t('Experiment');
     $header['machine_name'] = $this->t('Machine Name');
-    $header['algorithm'] = $this->t('Algorithm');
-    $header['blocks'] = $this->t('Blocks');
+
     return $header + parent::buildHeader();
   }
 
@@ -45,11 +45,6 @@ class ExperimentListBuilder extends ConfigEntityListBuilder {
   public function buildRow(EntityInterface $entity) {
     $row['label'] = $this->getLabel($entity);
     $row['machine_name'] = $entity->id();
-    // @todo Display label instead.
-    $row['algorithm'] = $entity->getAlgorithmId();
-    // @todo UX improvements needed.
-    // @todo Will be changed.
-    $row['blocks'] = implode(", ", $entity->getBlocks());
 
     return $row + parent::buildRow($entity);
   }
@@ -62,10 +57,25 @@ class ExperimentListBuilder extends ConfigEntityListBuilder {
    */
   public function render() {
     $build['description'] = [
-      '#markup' => $this->t("<p>This will be help text.</p>"),
+      '#markup' => $this->t("<p>This is a list of all the experiments from this website.</p>"),
     ];
     $build[] = parent::render();
+
     return $build;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getOperations(EntityInterface $entity) {
+    $operations = parent::getOperations($entity);
+    // Add the link to the results page.
+    $operations['results'] = [
+      'title' => 'Results',
+      'weight' => 150,
+      'url' => Url::fromRoute('experiment.results', ['experiment' => $entity->id()]),
+    ];
+
+    return $operations;
+  }
 }

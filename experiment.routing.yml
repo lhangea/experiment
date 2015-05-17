@@ -40,6 +40,16 @@ entity.experiment.delete_form:
   options:
     _admin_route: TRUE
 
+experiment.block.admin_configure:
+  path: '/admin/structure/experiment/add/{plugin_id}/{view_mode}/{selected_links}'
+  defaults:
+    _form: '\Drupal\experiment\Form\BlockPreviewForm'
+    _title: 'Configure success condition for block'
+    view_mode: null
+  requirements:
+    _permission: 'access content'
+    # here we need something more like _permission: 'access experiments'
+
 experiment.select:
   path: '/experiment/{experiment}'
   defaults:
@@ -56,13 +66,11 @@ experiment.update:
     _permission: 'access content'
     _method: POST
 
-experiment.block.admin_configure:
-  path: '/admin/structure/experiment/add/{plugin_id}/{view_mode}/{selected_links}'
+experiment.results:
+  path: '/admin/structure/experiment/{experiment}/results'
   defaults:
-    _form: '\Drupal\experiment\Form\BlockPreviewForm'
-    _title: 'Configure success condition for block'
-    view_mode: null
+    _controller: '\Drupal\experiment\Controller\ExperimentController::experimentResults'
+    _title: 'Experiment results'
   requirements:
     _permission: 'access content'
-    # here we need something more like _permission: 'access experiments'
 
