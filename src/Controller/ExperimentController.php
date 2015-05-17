@@ -8,6 +8,7 @@
 namespace Drupal\experiment\Controller;
 
 use Drupal\Component\Serialization\Json;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Render\RendererInterface;
@@ -95,9 +96,7 @@ class ExperimentController implements ContainerInjectionInterface {
     $response = new Response();
 
     $selected_plugin = $algorithm->select();
-    $values = $this->state->get('experiment.' . $experiment->id());
-    $values['counts'][$selected_plugin] += 1;
-    $this->state->set('experiment.' . $experiment->id(), $values);
+    $algorithm->updateAverageWithNullReward($selected_plugin);
     $index = strrpos($selected_plugin, ':');
     $plugin_id = substr($selected_plugin, 0, $index);
     $view_mode = substr($selected_plugin, $index + 1, strlen($selected_plugin));
@@ -123,10 +122,21 @@ class ExperimentController implements ContainerInjectionInterface {
     return $response;
   }
 
+  /**
+   * Update the experiment results when a seccess condition is met.
+   *
+   * @param ExperimentInterface $experiment
+   *   Experiment entity.
+   * @param Request $request
+   *   Request object.
+   *
+   * @return Response
+   *   201 response meaning successful POST request.
+   */
   public function updateExperimentResults(ExperimentInterface $experiment, Request $request) {
     $parameters = $request->request->all();
     $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($experiment);
-    $algorithm->update($parameters['variation_id'], $parameters['reward']);
+    $algorithm->updateAverageWithReward($parameters['variation_id'], $parameters['reward']);
 
     return new Response($this->t('The experiment results were successfully updated'), 201);
   }
@@ -154,7 +164,7 @@ class ExperimentController implements ContainerInjectionInterface {
     foreach ($blocks as $block) {
       $definition = $this->blockManager->getDefinition($block['machine_name']);
       $id = ($block['view_mode']) ? $block['machine_name'] . ':' . $block['view_mode'] : $block['machine_name'];
-      $build['table'][$id][]['#markup'] = $this->t($definition['admin_label']);
+      $build['table'][$id][]['#markup'] = SafeMarkup::checkPlain($this->t($definition['admin_label']));
       $build['table'][$id][]['#markup'] = $block['view_mode'];
       $build['table'][$id][]['#markup'] = $results['counts'][$id];
       $build['table'][$id][]['#markup'] = $results['values'][$id];

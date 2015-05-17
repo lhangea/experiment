@@ -24,38 +24,37 @@ class EpsilonGreedy extends MABAlgorithmBase {
    * {@inheritdoc}
    */
   public function select() {
-    // @todo See if the state is the best option for storing the experiment result.
-    $results = $this->state->get('experiment.' . $this->configuration['experiment_id']);
-    $values = $results['values'];
-
     // Exploit (use the best known variation).
     if ($this->getRand() > $this->configuration['epsilon']) {
-      return $this->getIndMax($values);
+      return $this->getIndMax($this->values);
     }
     // Explore (select a random variation).
     else {
-      return array_rand($values);
+      return array_rand($this->values);
     }
   }
-
 
   /**
    * {@inheritdoc}
    */
-  public function update($variation_id, $reward) {
-    // Get the current values.
-    $results = $this->state->get('experiment.' . $this->configuration['experiment_id']);
+  public function updateAverageWithNullReward($variation_id)
+  {
+    $this->counts[$variation_id] += 1;
+    $n = $this->counts[$variation_id];
+    $value = $this->values[$variation_id];
+    $new_value = (($n - 1) / (float)$n) * $value;
+    $this->values[$variation_id] = $new_value;
 
-    // The counts vector is incremented when returning the selected variation
-    // and not here for performance reasons.
-    // $results['counts'][$variation_id] += 1;
-    $n = $results['counts'][$variation_id];
-
-    $value = $results['values'][$variation_id];
-    $new_value = (($n - 1) / (float)$n) * $value + (1 / (float)$n) * (float)$reward;
-    $results['values'][$variation_id] = $new_value;
-
-    $this->state->set('experiment.' . $this->configuration['experiment_id'], $results);
+    $this->saveResults();
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function updateAverageWithReward($variation_id, $reward)
+  {
+    $n = $this->counts[$variation_id];
+    $this->values[$variation_id] += (1 / (float)$n) * (float)$reward;
+    $this->saveResults();
+  }
 }

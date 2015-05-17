@@ -26,6 +26,16 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
   protected $state;
 
   /**
+   * @var Array Holds the number of times each variation has been shown.
+   */
+  protected $counts;
+
+  /**
+   * @var Array Holds the average reward for each variation.
+   */
+  protected $values;
+
+  /**
    * Constructs a FieldDiffBuilderBase object.
    *
    * @param array $configuration
@@ -39,6 +49,9 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, StateInterface $state) {
     $this->state = $state;
+    $results = $state->get('experiment.' . $configuration['experiment_id']);
+    $this->values = $results['values'];
+    $this->counts = $results['counts'];
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->configuration += $this->defaultConfiguration();
@@ -169,6 +182,17 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
     $number = floatval($string);
 
     return $number > 0 && $number <= 1 || $number == 0 && $string == '0';
+  }
+
+  /**
+   * Saves the updated results.
+   */
+  public function saveResults() {
+    $results = [
+      'counts' => $this->counts,
+      'values' => $this->values,
+    ];
+    $this->state->set('experiment.' . $this->configuration['experiment_id'], $results);
   }
 
 }

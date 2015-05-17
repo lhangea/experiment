@@ -16,26 +16,40 @@ use Drupal\Component\Plugin\ConfigurablePluginInterface;
 interface MABAlgorithmInterface extends ConfigurablePluginInterface, PluginFormInterface {
 
   /**
-   * When for a certain experiment we need to know which variation to show,
-   * the plugin manager simply calls this method on the experiment instance and
-   * this method returns the index of the next arm to pull i.e. block id.
+   * Decides which variation to show.
+   *
+   * When the system needs to decide which variation to show it will simply
+   * call this method on an experiment object and this method should return the
+   * id of the variation.
    *
    * @return string
-   *   The variation id (i.e. block id).
+   *   The variation identifier.
    */
   public function select();
 
   /**
-   * This method is responsible for updating the algorithm belief about the
-   * chosen variation by updating the average reward of the chosen variation.
+   * Recomputes the mean reward for a variation.
    *
-   * @param $variation_id string
-   *   The id of the variation whose results need to be updated.
-   * @param $reward float
-   *   A numeric reward gained by displaying this variation.
+   * This method is called when a certain variation is shown. It updates
+   * the mean reward for the shown variation right when showing the variation
+   *
+   * @param string $variation_id
+   *  The id of the variation.
    *
    * @return NULL
    */
-  public function update($variation_id, $reward);
+  public function updateAverageWithNullReward($variation_id);
+
+  /**
+   * Updates the mean reward.
+   *
+   * @param string $variation_id
+   *   The if of the variation.
+   * @param float $reward
+   *   A positive float number representing the reward for a achieving a goal.
+   *
+   * @return NULL
+   */
+  public function updateAverageWithReward($variation_id, $reward);
 
 }
