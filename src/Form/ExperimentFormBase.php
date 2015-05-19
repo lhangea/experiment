@@ -119,8 +119,6 @@ class ExperimentFormBase extends EntityForm {
 
     $form['variations_set'] = [
       '#title' => $this->t('Variations set'),
-      '#prefix' => '<div id="variations-set">',
-      '#suffix' => '</div>',
       '#type' => 'fieldset',
     ];
     $form['variations_set']['blocks'] = [
@@ -168,9 +166,9 @@ class ExperimentFormBase extends EntityForm {
         'effect' => 'fade',
         'progress' => 'none',
       ],
-      '#limit_validation_errors' => ['variations_set'],
+      '#limit_validation_errors' => [['variations_set']],
       '#attributes' => [
-        'id' => 'add-block-button' ,
+        'class' => ['add-block-button'] ,
       ],
       '#attached' => [
         'library' => ['experiment/experiment.admin'],
@@ -325,19 +323,6 @@ class ExperimentFormBase extends EntityForm {
     // This part is may be different on every form rebuilt based on the
     // selected algorithm.
     $form['algorithm_fieldset']['settings']['form'] = $algorithm->buildConfigurationForm([], $form_state);
-
-//    $form['conditions_fieldset'] = [
-//      '#title' => $this->t('Success conditions'),
-//      '#type' => 'fieldset',
-//    ];
-
-//    $form['conditions_fieldset']['conditions'] = [
-//      '#type' => 'select',
-//      '#options' => [
-//        'click' => 'Click',
-//      ],
-//      '#empty_option' => $this->t('- Select a success condition -'),
-//    ];
 
     return $form;
   }

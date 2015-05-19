@@ -36,7 +36,7 @@ class MABAlgorithmManager extends DefaultPluginManager implements MABAlgorithmMa
 
     // When first submitting the experiment form save the experiment id
     // in the algorithm configuration.
-    if (!$algorithm_configuration['experiment_id'] && $experiment->id()) {
+    if (!isset($algorithm_configuration['experiment_id']) && $experiment->id()) {
       $algorithm_configuration['experiment_id'] = $experiment->id();
     }
     // Create an instance of the algorithm associated with the experiment.

@@ -49,7 +49,11 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, StateInterface $state) {
     $this->state = $state;
-    $results = $state->get('experiment.' . $configuration['experiment_id']);
+    // @todo Here we probably need to have a separate method for getting the
+    //   algorithm configuration form (that's why we need to instantiate and
+    //   algorithm plugin when we don't have the experiment id yet).
+    $experiment_id = (isset($configuration['experiment_id'])) ? $configuration['experiment_id'] : '';
+    $results = $state->get('experiment.' . $experiment_id);
     $this->values = $results['values'];
     $this->counts = $results['counts'];
     parent::__construct($configuration, $plugin_id, $plugin_definition);
