@@ -126,9 +126,6 @@ class ExperimentFormBase extends EntityForm {
       '#title' => $this->t('Block'),
       '#options' => $blocks,
       '#empty_option' => $this->t('Select a new block'),
-      '#attributes' => [
-        'class' => ['block-select'],
-      ],
       '#ajax' => [
         'callback' => [$this, 'ajaxViewModesCallback'],
         'wrapper' => 'view-modes',
@@ -141,6 +138,7 @@ class ExperimentFormBase extends EntityForm {
     $options = $this->entityManager->getViewModeOptions('block_content');
     $selected_block = $form_state->getValue(['variations_set', 'blocks']);
     // Check if the block has view modes or not.
+    // @todo Find a better way to check this.
     $has_view_modes = substr($selected_block, 0, strlen('block_content:')) === 'block_content:';
     $form['variations_set']['container'] = [
       '#type' => 'container',
@@ -148,6 +146,8 @@ class ExperimentFormBase extends EntityForm {
         'id' => 'view-modes',
       ],
     ];
+    // Display the view mode selector only if the block has view modes
+    // and if it has more than 1 view mode.
     $form['variations_set']['container']['view_modes'] = [
       '#type' => 'select',
       '#title' => $this->t('View Mode'),
@@ -161,7 +161,7 @@ class ExperimentFormBase extends EntityForm {
       '#submit' => [[$this, 'addBlockSubmitCallback']],
       '#validate' => [[$this, 'addBlockValidateCallback']],
       '#ajax' => [
-        'callback' => [$this, 'addBlockAjaxCallback'],
+        'callback' => [$this, 'ajaxAddBlockCallback'],
         'wrapper' => 'blocks-list',
         'effect' => 'fade',
         'progress' => 'none',
@@ -188,7 +188,7 @@ class ExperimentFormBase extends EntityForm {
     ];
     if (!$form_state->get(['variations_set', 'block_list', 'storage'])) {
       $added_blocks = $experiment->getBlocks();
-      $form_state->set(['variations_set', 'block_list', 'storage'], $experiment->getBlocks());
+      $form_state->set(['variations_set', 'block_list', 'storage'], $added_blocks);
     }
     else {
       $added_blocks = $form_state->get(['variations_set', 'block_list', 'storage']);
@@ -205,7 +205,7 @@ class ExperimentFormBase extends EntityForm {
       $variable_name .= ($added_block['view_mode']) ? ':' . $added_block['view_mode'] : '';
       // @todo This is a workaround. Usually the form state should contain the
       //   proper values (input type hidden modified by javascript) on rebuild
-      //   but id doesn't. File a bug for this.
+      //   but it doesn't. File a bug for this.
       $user_input = $form_state->getUserInput();
       if ($user_input[$variable_name] != '') {
         $form_state->setValue(['variations_set', 'blocks_list', 'hidden_values', $variable_name], $user_input[$variable_name]);
@@ -219,10 +219,18 @@ class ExperimentFormBase extends EntityForm {
       // @todo Find a better way to store the values in the config entity.
       //   Separate the success condition configuration from selected blocks.
       if ($selected_links === NULL) {
+        // If the values are not in the form state, try loading them
+        // from the experiment storage.
         foreach ($added_blocks as $block) {
           if ($block['machine_name'] == $added_block['machine_name'] && $block['view_mode'] == $added_block['view_mode']) {
             $selected_links = $block['selected_links'];
           }
+        }
+        // If the experiment doesn't have these settings neither, it means that
+        // we are creating a new experiment, so set an initial value so that not
+        // link is selected.
+        if ($selected_links === NULL) {
+          $selected_links = [-1];
         }
       }
       $row[] = [
@@ -232,7 +240,7 @@ class ExperimentFormBase extends EntityForm {
             'title' => $this->t('Configure'),
             'url' => Url::fromRoute('experiment.block.admin_configure', [
               'plugin_id' => $added_block['machine_name'],
-              'view_mode' => $added_block['view_mode'],
+              'view_mode' => ($added_block['view_mode']) ? $added_block['view_mode'] : 'none',
               'selected_links' => Json::encode($selected_links),
             ]),
             'attributes' => [
@@ -264,7 +272,7 @@ class ExperimentFormBase extends EntityForm {
         'class' => ['block-form-rebuild'],
       ],
       '#ajax' => [
-        'callback' => [$this, 'addBlockAjaxCallback'],
+        'callback' => [$this, 'ajaxAddBlockCallback'],
         'event' => 'change',
         'wrapper' => 'blocks-list',
       ],
@@ -328,13 +336,6 @@ class ExperimentFormBase extends EntityForm {
   }
 
   /**
-   *
-   */
-  function ajaxRebuildForm(array $form, FormStateInterface $form_state) {
-    return $form['variations_set']['blocks_list']['hidden_values'];
-  }
-
-  /**
    * Ajax handler for algorithm settings.
    */
   function ajaxAlgorithmSettingsCallback(array $form, FormStateInterface $form_state) {
@@ -342,39 +343,46 @@ class ExperimentFormBase extends EntityForm {
   }
 
   /**
-   * Ajax handler for view modes select box.
+   * Returns the view modes associated with the selected block.
    */
   function ajaxViewModesCallback(array $form, FormStateInterface $form_state) {
     return $form['variations_set']['container'];
   }
 
   /**
-   * Form submission handler for add block button validation.
+   * Validation handler for the 'Add block' button.
    */
   function addBlockValidateCallback(array $form, FormStateInterface $form_state) {
     $selected_block = [
       'machine_name' => $form_state->getValue(['variations_set', 'blocks']),
       'view_mode' => $form_state->getValue(['variations_set', 'container', 'view_modes']),
     ];
-    $blocks_list = $form_state->get(['variations_set', 'block_list', 'storage']) ? $form_state->get(['variations_set', 'block_list', 'storage']) : [];
+    $blocks_list = $form_state->get(['variations_set', 'block_list', 'storage']);
+    if ($blocks_list === NULL) {
+      $blocks_list = [];
+    }
+    // The same block can only be added once.
     foreach ($blocks_list as $block) {
-      if ($selected_block['machine_name'] == $block['machine_name'] && $selected_block['view_mode'] == $block['view_mode']) {
-        // @todo This doesn't work. Need to figure it out.
+      if ($selected_block['machine_name'] === $block['machine_name'] && $selected_block['view_mode'] === $block['view_mode']) {
         $form_state->setErrorByName('variations_set', $this->t('You cannot add the same variation twice'));
       }
     }
   }
 
   /**
-   * Form submission handler for add block button.
+   * Submit handler for the 'Add block' button.
    */
   function addBlockSubmitCallback(array $form, FormStateInterface $form_state) {
     $block = [
       'machine_name' => $form_state->getValue(['variations_set', 'blocks']),
       'view_mode' => $form_state->getValue(['variations_set', 'container', 'view_modes']),
     ];
-    $blocks_list = $form_state->get(['variations_set', 'block_list', 'storage']) ? $form_state->get(['variations_set', 'block_list', 'storage']) : [];
+    $blocks_list = $form_state->get(['variations_set', 'block_list', 'storage']);
+    if ($blocks_list === NULL) {
+      $blocks_list = [];
+    }
     $blocks_list[] = $block;
+    // Add the block to the set of selected blocks.
     $form_state->set(['variations_set', 'block_list', 'storage'], $blocks_list);
     $form_state->setRebuild();
   }
@@ -382,7 +390,7 @@ class ExperimentFormBase extends EntityForm {
   /**
    * Ajax handler for blocks list.
    */
-  function addBlockAjaxCallback(array $form, FormStateInterface $form_state) {
+  function ajaxAddBlockCallback(array $form, FormStateInterface $form_state) {
     return $form['variations_set']['blocks_list'];
   }
 

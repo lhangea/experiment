@@ -55,14 +55,18 @@ class BlockPreviewForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, $plugin_id = NULL, $view_mode = NULL, $selected_links = NULL) {
-    $block = $this->blockManager->createInstance($plugin_id, ['view_mode' => $view_mode]);
+    $configuration = [];
+    if ($view_mode !== 'none') {
+      $configuration['view_mode'] = $view_mode;
+    }
+    $block = $this->blockManager->createInstance($plugin_id, $configuration);
 
     $form['block'] = $block->build();
     // Remove type #actions element in order to avoid having the button descend
     // in the footer of the modal window.
     $form['block']['actions'] = $form['block']['actions']['submit'];
     $form['#attached']['library'] = ['experiment/experiment.select'];
-    $hidden_input_name = ($view_mode) ? $plugin_id . ':' . $view_mode : $plugin_id;
+    $hidden_input_name = ($view_mode !== 'none') ? $plugin_id . ':' . $view_mode : $plugin_id;
     $form['#attached']['drupalSettings']['selectedLinks'] = JSON::decode($selected_links);
     $form['#attached']['drupalSettings']['hiddenInputName'] = $hidden_input_name;
     // We need to have this values in the ajax callback so that we can select

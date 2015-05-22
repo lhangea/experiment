@@ -45,7 +45,6 @@ experiment.block.admin_configure:
   defaults:
     _form: '\Drupal\experiment\Form\BlockPreviewForm'
     _title: 'Configure success condition for block'
-    view_mode: null
   requirements:
     _permission: 'access content'
     # here we need something more like _permission: 'access experiments'
