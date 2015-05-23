@@ -19,8 +19,7 @@
                     success: function (collection, response) {
                         var block_content = $('.' + drupalSettings.experiment_id + ' .content');
                         block_content.html(response.block_html);
-
-                        var links = block_content.find("div a, input[type=submit], button");
+                        var links = block_content.find("a, input[type=submit], button");
                         links.each(function( index, element ) {
                             $(this).click(function( event ) {
                                 if (response.selected_links.indexOf(index) > -1) {
