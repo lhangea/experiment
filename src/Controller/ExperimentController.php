@@ -96,10 +96,15 @@ class ExperimentController implements ContainerInjectionInterface {
     $response = new Response();
 
     $selected_plugin = $algorithm->select();
+    $plugin_id = $selected_plugin;
+    $view_mode = FALSE;
     $algorithm->updateAverageWithNullReward($selected_plugin);
     $index = strrpos($selected_plugin, ':');
-    $plugin_id = substr($selected_plugin, 0, $index);
-    $view_mode = substr($selected_plugin, $index + 1, strlen($selected_plugin));
+    // If we are dealing with a 'content' block.
+    if ($index !== FALSE) {
+      $plugin_id = substr($selected_plugin, 0, $index);
+      $view_mode = substr($selected_plugin, $index + 1, strlen($selected_plugin));
+    }
     $config = [];
     if ($view_mode) {
       $config['view_mode'] = $view_mode;
