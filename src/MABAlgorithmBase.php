@@ -26,6 +26,13 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
   protected $state;
 
   /**
+   * The algorithm utility service.
+   *
+   * @var \Drupal\experiment\AlgorithmUtility
+   */
+  protected $utility;
+
+  /**
    * @var Array Holds the number of times each variation has been shown.
    */
   protected $counts;
@@ -46,9 +53,12 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
    *   The plugin implementation definition.
    * @param \Drupal\Core\State\StateInterface $state
    *   The state service.
+   * @param \Drupal\experiment\AlgorithmUtility $utility
+   *   The algorithm utility service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, StateInterface $state) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, StateInterface $state, AlgorithmUtility $utility) {
     $this->state = $state;
+    $this->utility = $utility;
     // @todo Here we probably need to have a separate method for getting the
     //   algorithm configuration form (that's why we need to instantiate and
     //   algorithm plugin when we don't have the experiment id yet).
@@ -66,10 +76,11 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
-        $configuration,
-        $plugin_id,
-        $plugin_definition,
-        $container->get('state')
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('state'),
+      $container->get('algorithm.utility')
     );
   }
 
@@ -120,67 +131,6 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
 
-  }
-
-  /**
-   * Helper function which generates a random number.
-   *
-   * @return float
-   *   Random number between 0 and 1.
-   *
-   * @todo Add unit tests for this.
-   */
-  public function getRand() {
-    return mt_rand() / mt_getrandmax();
-  }
-
-  /**
-   * Finds the index of the maximum key from an array.
-   *
-   * @param array
-   *   Array containing key value pairs.
-   *
-   * @return string
-   *   The key of the max value from the array.
-   *
-   * @todo Add unit tests for this.
-   */
-  function getIndMax($array) {
-    $max_key = -1;
-    $max_val = -1;
-
-    // Logical or between all array elements to determine if we are right after
-    // a new experiment has been initialized.
-    $initial = !in_array(TRUE, $array, FALSE);
-    if ($initial) {
-      return array_rand($array);
-    }
-    else {
-      foreach ($array as $key => $value) {
-        if ($value > $max_val) {
-          $max_key = $key;
-          $max_val = $value;
-        }
-      }
-      return $max_key;
-    }
-  }
-
-  /**
-   * Checks if the float value of a string is a decimal number between 0 and 1.
-   *
-   * @param $string
-   *   The string to be checked.
-   * @return bool
-   *   TRUE if the value is between 0 and 1 (inclusive)
-   *   FALSE otherwise
-   *
-   * @todo Add unit tests.
-   */
-  public function isFloatBetweenZeroAndOne($string) {
-    $number = floatval($string);
-
-    return $number > 0 && $number <= 1 || $number == 0 && $string == '0';
   }
 
   /**

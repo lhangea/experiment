@@ -37,7 +37,7 @@ class UCB1 extends MABAlgorithmBase {
       $ucb_values[$plugin_id] = $value + $bonus;
     }
 
-    return $this->getIndMax($ucb_values);
+    return $this->utility->getIndMax($ucb_values);
   }
 
   /**

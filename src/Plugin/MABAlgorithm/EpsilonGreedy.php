@@ -26,8 +26,8 @@ class EpsilonGreedy extends MABAlgorithmBase {
    */
   public function select() {
     // Exploit (use the best known variation).
-    if ($this->getRand() > $this->configuration['epsilon']) {
-      return $this->getIndMax($this->values);
+    if ($this->utility->getRand() > $this->configuration['epsilon']) {
+      return $this->utility->getIndMax($this->values);
     }
     // Explore (select a random variation).
     else {
@@ -72,7 +72,7 @@ class EpsilonGreedy extends MABAlgorithmBase {
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
     // Validate the epsilon for values between 0 and 1 inclusive.
-    if (!$this->isFloatBetweenZeroAndOne($form_state->getValue('epsilon'))) {
+    if (!$this->utility->isFloatBetweenZeroAndOne($form_state->getValue('epsilon'))) {
       $form_state->setErrorByName('epsilon', $this->t('Epsilon value must be a decimal between 0 and 1'));
     }
   }
