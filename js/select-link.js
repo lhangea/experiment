@@ -34,7 +34,7 @@
                     selected.push(-1);
                 }
                 $("input[name=\"" + drupalSettings.hiddenInputName + "\"]").val(selected);
-                $(".block-form-rebuild").trigger('change');
+                $("#edit-variations-set-unused").trigger('change');
             });
         }
     }

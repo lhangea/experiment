@@ -1,3 +1,6 @@
 .add-block-button {
     margin-bottom: 10px;
 }
+#edit-variations-set-unused {
+    display:none;
+}
