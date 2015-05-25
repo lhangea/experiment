@@ -161,7 +161,7 @@ class ExperimentFormBase extends EntityForm {
       '#submit' => [[$this, 'addBlockSubmitCallback']],
       '#validate' => [[$this, 'addBlockValidateCallback']],
       '#ajax' => [
-        'callback' => [$this, 'ajaxAddBlockCallback'],
+        'callback' => [$this, 'ajaxUpdateBlocksTable'],
         'wrapper' => 'blocks-list',
         'effect' => 'fade',
         'progress' => 'none',
@@ -183,10 +183,10 @@ class ExperimentFormBase extends EntityForm {
     ];
     $form['variations_set']['blocks_list']['table'] = [
       '#type' => 'table',
-      '#header' => [$this->t('Title'), $this->t('Machine Name'), $this->t('View Mode'), $this->t('Operations')],
+      '#header' => [$this->t('Title'), $this->t('Machine Name'), $this->t('View Mode'), $this->t('Operations'), ''],
       '#empty' => t('There are no items yet.'),
     ];
-    if (!$form_state->get(['variations_set', 'block_list', 'storage'])) {
+    if ($form_state->get(['variations_set', 'block_list', 'storage']) === NULL) {
       $added_blocks = $experiment->getBlocks();
       $form_state->set(['variations_set', 'block_list', 'storage'], $added_blocks);
     }
@@ -251,11 +251,26 @@ class ExperimentFormBase extends EntityForm {
               ]),
             ],
           ],
-          'remove' => [
-            'title' => $this->t('Remove'),
-            'url' => Url::fromRoute('<front>'),
-          ],
         ],
+      ];
+      // Remove button.
+      $row[] = [
+        '#type' => 'submit',
+        '#button_type' => 'danger',
+        '#submit' => [[$this, 'removeBlockSubmitCallback']],
+        '#ajax' => [
+          'callback' => [$this, 'ajaxUpdateBlocksTable'],
+          'wrapper' => 'blocks-list',
+          'effect' => 'fade',
+          'progress' => 'none',
+        ],
+        '#limit_validation_errors' => [['variations_set', 'blocks_list', 'table']],
+        '#value' => $this->t('Remove'),
+        // We need to set different name for every button otherwise the
+        // triggering element is wrongly identified.
+        '#name' => $added_block['machine_name'] . ':' . $added_block['view_mode'],
+        '#block_id' => $added_block['machine_name'],
+        '#block_view_mode' => $added_block['view_mode']
       ];
       $form['variations_set']['blocks_list']['table'][$id] = $row;
       $form['variations_set']['blocks_list']['hidden_values'][$variable_name] = [
@@ -268,7 +283,7 @@ class ExperimentFormBase extends EntityForm {
     $form['variations_set']['unused'] = [
       '#type' => 'textfield',
       '#ajax' => [
-        'callback' => [$this, 'ajaxAddBlockCallback'],
+        'callback' => [$this, 'ajaxUpdateBlocksTable'],
         'event' => 'change',
         'wrapper' => 'blocks-list',
       ],
@@ -387,9 +402,31 @@ class ExperimentFormBase extends EntityForm {
   }
 
   /**
+   * Submit handler for the 'Remove block' button.
+   */
+  function removeBlockSubmitCallback(array $form, FormStateInterface $form_state) {
+    $removed_block = $form_state->getTriggeringElement();
+    $blocks = $form_state->get(['variations_set', 'block_list', 'storage']);
+    $remove_index = -1;
+    foreach ($blocks as $id => $block) {
+      if ($block['machine_name'] === $removed_block['#block_id'] && $block['view_mode'] === $removed_block['#block_view_mode']) {
+        $remove_index = $id;
+        break;
+      }
+    }
+    // Remove the block.
+    if (isset($blocks[$remove_index])) {
+      unset($blocks[$remove_index]);
+    }
+    // Update the block list.
+    $form_state->set(['variations_set', 'block_list', 'storage'], $blocks);
+    $form_state->setRebuild();
+  }
+
+  /**
    * Ajax handler for blocks list.
    */
-  function ajaxAddBlockCallback(array $form, FormStateInterface $form_state) {
+  function ajaxUpdateBlocksTable(array $form, FormStateInterface $form_state) {
     return $form['variations_set']['blocks_list'];
   }
 
