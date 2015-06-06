@@ -62,6 +62,7 @@ class EpsilonGreedy extends MABAlgorithmBase {
       '#size' => 60,
       '#maxlength' => 128,
       '#required' => TRUE,
+      '#description' => $this->t('Float value between 0 and 1')
     ];
 
     return $form;
@@ -71,8 +72,9 @@ class EpsilonGreedy extends MABAlgorithmBase {
    * {@inheritdoc}
    */
   public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
+    $epsilon = $form_state->getValue('epsilon');
     // Validate the epsilon for values between 0 and 1 inclusive.
-    if (!$this->utility->isFloatBetweenZeroAndOne($form_state->getValue('epsilon'))) {
+    if (!$this->utility->isFloatBetweenZeroAndOne($epsilon)) {
       $form_state->setErrorByName('epsilon', $this->t('Epsilon value must be a decimal between 0 and 1'));
     }
   }

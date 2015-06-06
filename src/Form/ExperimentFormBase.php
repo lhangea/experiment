@@ -475,17 +475,16 @@ class ExperimentFormBase extends EntityForm {
   public function validate(array $form, FormStateInterface $form_state) {
     parent::validate($form, $form_state);
 
-    // Add code here to validate your config entity's form elements.
-    $form_state->cleanValues();
-    // The algorithm configuration is stored in the 'algorithm' key in the form,
-    // pass that through form submission.
-    $algorithm_config = (new FormState())->setValues($form_state->getValue(['algorithm_fieldset', 'settings', 'form']));
-    $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($this->getEntity());
-    $algorithm->validateConfigurationForm($form, $algorithm_config);
-
-    // Update the original form values.
-    // @todo I don't know why do we have to do this!!
-    $form_state->setValue(['algorithm_fieldset', 'settings', 'form'], $algorithm_config->getValues());
+    // Pass the input values of the algorithm configuration form to the
+    // algorithm plugin 'validateConfigurationForm' method.
+    $algorithm_config = $form_state->getValue(['algorithm_fieldset', 'settings', 'form']);
+    if ($algorithm_config != NULL) {
+      $algorithm_form_state = (new FormState())->setValues($algorithm_config);
+      $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($this->getEntity());
+      $algorithm->validateConfigurationForm($form, $algorithm_form_state);
+      // Set errors back on the main form.
+      $form_state->setError($form['algorithm_fieldset']['settings']['form'], $algorithm_form_state->getErrors());
+    }
   }
 
   /**

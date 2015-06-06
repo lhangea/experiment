@@ -70,6 +70,7 @@ class AlgorithmUtilityTest extends UnitTestCase {
       [TRUE, 0.8],
       [TRUE, '0'],
       [TRUE, '1'],
+      [TRUE, '.1'],
       [FALSE, ''],
       [FALSE, '1.1'],
       [FALSE, '-1'],
