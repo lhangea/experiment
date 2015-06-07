@@ -11,6 +11,7 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\PageCache\ResponsePolicyInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -51,6 +52,11 @@ class ExperimentController implements ContainerInjectionInterface {
   protected $state;
 
   /**
+   * @var \Drupal\Core\PageCache\ResponsePolicyInterface
+   */
+  protected $pageCacheKillSwitch;
+
+  /**
    * Constructs an ExperimentController object.
    *
    * @param \Drupal\Core\Block\BlockManagerInterface $block_manager
@@ -61,12 +67,15 @@ class ExperimentController implements ContainerInjectionInterface {
    *   The renderer service.
    * @param \Drupal\Core\State\StateInterface $state
    *   The state service.
+   * @param \Drupal\Core\PageCache\ResponsePolicyInterface
+   *   Page cache kill switch service.
    */
-  public function __construct(BlockManagerInterface $block_manager, MABAlgorithmManagerInterface $mab_algorithm_manager, RendererInterface $renderer, StateInterface $state) {
+  public function __construct(BlockManagerInterface $block_manager, MABAlgorithmManagerInterface $mab_algorithm_manager, RendererInterface $renderer, StateInterface $state, ResponsePolicyInterface $page_cache_kill_switch) {
     $this->blockManager = $block_manager;
     $this->mabAlgorithmManager = $mab_algorithm_manager;
     $this->renderer = $renderer;
     $this->state = $state;
+    $this->pageCacheKillSwitch = $page_cache_kill_switch;
   }
 
   /**
@@ -78,7 +87,8 @@ class ExperimentController implements ContainerInjectionInterface {
       $container->get('plugin.manager.block'),
       $container->get('plugin.manager.mab_algorithm'),
       $container->get('renderer'),
-      $container->get('state')
+      $container->get('state'),
+      $container->get('page_cache_kill_switch')
     );
   }
 
@@ -94,6 +104,8 @@ class ExperimentController implements ContainerInjectionInterface {
   public function getBlockContent(ExperimentInterface $experiment) {
     $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($experiment);
     $response = new Response();
+    // Prevent page caching for the current request.
+    $this->pageCacheKillSwitch->trigger();
 
     $selected_plugin = $algorithm->select();
     $plugin_id = $selected_plugin;
@@ -117,8 +129,9 @@ class ExperimentController implements ContainerInjectionInterface {
       }
     }
     $selected_block = $this->blockManager->createInstance($plugin_id, $config);
+    $block_html = $selected_block->build();
     $response->setContent(JSON::encode([
-      'block_html' => $this->renderer->render($selected_block->build()),
+      'block_html' => $this->renderer->render($block_html),
       'selected_plugin' => $selected_plugin,
       'selected_links' => $selected_links,
     ]));
