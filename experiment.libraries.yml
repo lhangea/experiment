@@ -1,6 +1,11 @@
 experiment.block:
+  version: VERSION
   js:
     js/experiment.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/backbone
 
 experiment.select:
   version: VERSION
