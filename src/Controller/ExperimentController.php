@@ -97,17 +97,26 @@ class ExperimentController implements ContainerInjectionInterface {
    *
    * @param ExperimentInterface $experiment
    *   The experiment object.
+   * @param Request $request
+   *   Request object.
    *
    * @return Response
    *   JSON response for the given experiment.
    */
-  public function getBlockContent(ExperimentInterface $experiment) {
+  public function getBlockContent(ExperimentInterface $experiment, Request $request) {
     $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($experiment);
     $response = new Response();
     // Prevent page caching for the current request.
     $this->pageCacheKillSwitch->trigger();
-
-    $selected_plugin = $algorithm->select();
+    $plugin_id_from_cookie = $request->cookies->get($experiment->id());
+    if ($plugin_id_from_cookie) {
+      $selected_plugin = $plugin_id_from_cookie;
+    }
+    else {
+      $selected_plugin = $algorithm->select();
+      // Set a cookie for 2 minutes.
+      setrawcookie($experiment->id(), $selected_plugin, REQUEST_TIME + 120, '/');
+    }
     $plugin_id = $selected_plugin;
     $view_mode = FALSE;
     $algorithm->updateAverageWithNullReward($selected_plugin);
