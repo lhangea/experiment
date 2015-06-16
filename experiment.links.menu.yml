@@ -3,3 +3,10 @@ entity.experiment.list:
   parent: system.admin_structure
   description: 'Manage experiments.'
   route_name: entity.experiment.list
+
+experiment.settings:
+  title: Experiment settings
+  parent: system.admin_config_system
+  description: 'Configure experiment settings.'
+  route_name: experiment.settings
+  weight: 30

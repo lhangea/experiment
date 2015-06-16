@@ -76,3 +76,11 @@ experiment.results:
   requirements:
     _permission: 'access content'
 
+experiment.settings:
+  path: '/admin/config/system/experiment'
+  defaults:
+    _form: 'Drupal\experiment\Form\SettingsForm'
+    _title: 'Experiments'
+  requirements:
+    _permission: 'administer site configuration'
+
