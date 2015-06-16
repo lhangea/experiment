@@ -36,3 +36,11 @@ experiment.experiment.*:
             machine_name:
               type: string
               label: 'Selected links'
+
+experiment.settings:
+  type: mapping
+  label: 'General experiment settings'
+  mapping:
+    use_cookies:
+      type: boolean
+      label: 'Use cookies'
