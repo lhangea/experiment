@@ -5,7 +5,7 @@
 
 (function($, Drupal, drupalSettings) {
     /**
-     * Behavior that loads block content.
+     * Behavior that handles the success conditions selection.
      */
     Drupal.behaviors.experimentClickSuccessCondition = {
         attach: function(context) {

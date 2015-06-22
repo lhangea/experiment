@@ -24,7 +24,6 @@ class AnnealingEpsilonGreedy extends MABAlgorithmBase {
    * {@inheritdoc}
    */
   public function select() {
-
     $t = array_sum($this->counts) + 1;
     $epsilon =  1 / log($t + 0.0000001);
 

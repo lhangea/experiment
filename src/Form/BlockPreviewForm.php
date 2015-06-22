@@ -65,7 +65,7 @@ class BlockPreviewForm extends FormBase {
     // Remove type #actions element in order to avoid having the button descend
     // in the footer of the modal window.
     $form['block']['actions'] = $form['block']['actions']['submit'];
-    $form['#attached']['library'] = ['experiment/experiment.select'];
+    $form['#attached']['library'] = ['experiment/experiment.admin'];
     $hidden_input_name = ($view_mode !== 'none') ? $plugin_id . ':' . $view_mode : $plugin_id;
     $form['#attached']['drupalSettings']['selectedLinks'] = JSON::decode($selected_links);
     $form['#attached']['drupalSettings']['hiddenInputName'] = $hidden_input_name;

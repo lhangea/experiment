@@ -7,18 +7,13 @@ experiment.block:
     - core/drupal
     - core/backbone
 
-experiment.select:
-  version: VERSION
-  css:
-    theme:
-      css/select-link.css: {}
-  js:
-    js/select-link.js: {}
-  dependencies:
-    - core/jquery
-
 experiment.admin:
   version: VERSION
   css:
     theme:
       css/admin.css: {}
+      css/select-link.css: {}
+  js:
+      js/select-link.js: {}
+  dependencies:
+    - core/jquery

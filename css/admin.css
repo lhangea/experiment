@@ -4,3 +4,17 @@
 #edit-variations-set-unused {
     display:none;
 }
+
+a.condition-selected {
+    background-color: #74b7ff;
+}
+
+input.condition-selected {
+    z-index: 10;
+    border: 1px solid #3AB2FF;
+    box-shadow: 0 0 .5em .1em;
+}
+
+a.condition-selected img {
+    box-shadow: 0 12px 22px 1px #74b7ff;
+}
