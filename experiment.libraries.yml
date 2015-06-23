@@ -12,7 +12,6 @@ experiment.admin:
   css:
     theme:
       css/admin.css: {}
-      css/select-link.css: {}
   js:
       js/select-link.js: {}
   dependencies:

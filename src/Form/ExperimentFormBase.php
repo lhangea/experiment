@@ -369,7 +369,7 @@ class ExperimentFormBase extends EntityForm {
       'view_mode' => $form_state->getValue(['variations_set', 'container', 'view_modes']),
     ];
     if (empty($selected_block['machine_name'])) {
-      $form_state->setErrorByName('variations_set][blocks', $this->t('Please select a block'));
+      $form_state->setError($form['variations_set']['blocks'], $this->t('Please select a block'));
     }
     $blocks_list = $form_state->get(['variations_set', 'block_list', 'storage']);
     if ($blocks_list === NULL) {
@@ -489,7 +489,7 @@ class ExperimentFormBase extends EntityForm {
     // At least 1 variation should be selected in an experiment.
     $blocks = $form_state->get(['variations_set', 'block_list', 'storage']);
     if (empty($blocks)) {
-      $form_state->setError($form['variations_set']['blocks'], $this->t('Add at least 1 variation to the experiment'));
+      $form_state->setError($form['variations_set']['blocks'], $this->t('You need to add at least 1 variation to the experiment'));
     }
   }
 

@@ -31,7 +31,7 @@ class UCB1 extends MABAlgorithmBase {
     }
 
     $ucb_values = [];
-    $total_counts = array_reduce($this->counts, function ($a, $b) { return $a + $b; }, 0);
+    $total_counts = array_sum($this->counts);
     foreach ($this->values as $plugin_id => $value) {
       $bonus = sqrt(2 * log($total_counts)) / (float)$this->counts[$plugin_id];
       $ucb_values[$plugin_id] = $value + $bonus;
