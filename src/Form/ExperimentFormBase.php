@@ -202,7 +202,7 @@ class ExperimentFormBase extends EntityForm {
     // Add the selected blocks to the table.
     foreach ($added_blocks as $id => $added_block) {
       $variable_name = $added_block['machine_name'];
-      $variable_name .= ($added_block['view_mode']) ? ':' . $added_block['view_mode'] : '';
+      $variable_name .= ($added_block['view_mode']) ? '+' . $added_block['view_mode'] : '';
       // @todo This is a workaround. Usually the form state should contain the
       //   proper values (input type hidden modified by javascript) on rebuild
       //   but it doesn't. File a bug for this.
@@ -268,7 +268,7 @@ class ExperimentFormBase extends EntityForm {
         '#value' => $this->t('Remove'),
         // We need to set different name for every button otherwise the
         // triggering element is wrongly identified.
-        '#name' => $added_block['machine_name'] . ':' . $added_block['view_mode'],
+        '#name' => $added_block['machine_name'] . '+' . $added_block['view_mode'],
         '#block_id' => $added_block['machine_name'],
         '#block_view_mode' => $added_block['view_mode']
       ];
@@ -513,7 +513,7 @@ class ExperimentFormBase extends EntityForm {
     $added_blocks = $form_state->get(['variations_set', 'block_list', 'storage']);
     foreach ($added_blocks as $key => $block) {
       $element_name = $block['machine_name'];
-      $element_name .= ($block['view_mode']) ? ':' . $block['view_mode'] : '';
+      $element_name .= ($block['view_mode']) ? '+' . $block['view_mode'] : '';
       $added_blocks[$key]['selected_links'] = $form_state->getValue(['variations_set', 'blocks_list', 'hidden_values', $element_name]);
     }
     $experiment->setBlocks($added_blocks);

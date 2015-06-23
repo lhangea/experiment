@@ -143,7 +143,7 @@ class Experiment extends ConfigEntityBase implements ExperimentInterface {
     $blocks = $this->getBlocks();
     $keys = [];
     foreach ($blocks as $block) {
-      $keys[] = ($block['view_mode']) ? $block['machine_name'] . ':' . $block['view_mode'] : $block['machine_name'];
+      $keys[] = ($block['view_mode']) ? $block['machine_name'] . '+' . $block['view_mode'] : $block['machine_name'];
     }
 
     return $keys;

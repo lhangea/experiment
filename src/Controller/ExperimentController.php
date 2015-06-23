@@ -133,7 +133,7 @@ class ExperimentController implements ContainerInjectionInterface {
     $plugin_id = $selected_plugin;
     $view_mode = FALSE;
     $algorithm->updateAverageWithNullReward($selected_plugin);
-    $index = strrpos($selected_plugin, ':');
+    $index = strrpos($selected_plugin, '+');
     // If we are dealing with a 'content' block.
     if ($index !== FALSE) {
       $plugin_id = substr($selected_plugin, 0, $index);
@@ -203,7 +203,7 @@ class ExperimentController implements ContainerInjectionInterface {
     ];
     foreach ($blocks as $block) {
       $definition = $this->blockManager->getDefinition($block['machine_name']);
-      $id = ($block['view_mode']) ? $block['machine_name'] . ':' . $block['view_mode'] : $block['machine_name'];
+      $id = ($block['view_mode']) ? $block['machine_name'] . '+' . $block['view_mode'] : $block['machine_name'];
       $build['table'][$id][]['#markup'] = SafeMarkup::checkPlain($this->t($definition['admin_label']));
       $build['table'][$id][]['#markup'] = $block['view_mode'];
       $build['table'][$id][]['#markup'] = $results['counts'][$id];
