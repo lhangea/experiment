@@ -8,6 +8,7 @@
 namespace Drupal\experiment\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -29,6 +30,12 @@ class ExperimentBlock extends BlockBase implements ContainerFactoryPluginInterfa
   protected $entityQueryFactory;
 
   /**
+   * @var \Drupal\Core\Entity\EntityManagerInterface
+   */
+  protected $entityManager;
+
+
+  /**
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
    * @param string $plugin_id
@@ -37,10 +44,13 @@ class ExperimentBlock extends BlockBase implements ContainerFactoryPluginInterfa
    *   The plugin implementation definition.
    * @param \Drupal\Core\Entity\Query\QueryFactory $query_factory
    *   An entity query factory for the experiment entity type.
+   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   *   The entity manager.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, QueryFactory $query_factory) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, QueryFactory $query_factory, EntityManagerInterface $entity_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityQueryFactory = $query_factory;
+    $this->entityManager = $entity_manager;
   }
 
   /**
@@ -52,7 +62,8 @@ class ExperimentBlock extends BlockBase implements ContainerFactoryPluginInterfa
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity.query')
+      $container->get('entity.query'),
+      $container->get('entity.manager')
     );
   }
 
@@ -79,7 +90,7 @@ class ExperimentBlock extends BlockBase implements ContainerFactoryPluginInterfa
   function blockForm($form, FormStateInterface $form_state) {
     $ids = $this->entityQueryFactory->get('experiment')->execute();
     $options = [];
-    $experiments = \Drupal::entityManager()->getStorage('experiment')->loadMultiple($ids);
+    $experiments = $this->entityManager->getStorage('experiment')->loadMultiple($ids);
     foreach ($experiments as $experiment) {
       $options[$experiment->id()] = $experiment->label();
     }
