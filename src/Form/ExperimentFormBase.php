@@ -485,6 +485,12 @@ class ExperimentFormBase extends EntityForm {
       // Set errors back on the main form.
       $form_state->setError($form['algorithm_fieldset']['settings']['form'], $algorithm_form_state->getErrors());
     }
+
+    // At least 1 variation should be selected in an experiment.
+    $blocks = $form_state->get(['variations_set', 'block_list', 'storage']);
+    if (empty($blocks)) {
+      $form_state->setError($form['variations_set']['blocks'], $this->t('Add at least 1 variation to the experiment'));
+    }
   }
 
   /**
