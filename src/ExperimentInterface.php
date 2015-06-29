@@ -15,19 +15,20 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
 interface ExperimentInterface extends ConfigEntityInterface {
 
   /**
-   * Returns the blocks associated with this experiment.
+   * Returns the list of actions associated with this experiment.
    *
    * @return array
-   *   The blocks array.
+   *   The actions array.
    */
-  public function getBlocks();
+  public function getActions();
 
   /**
-   * Set the blocks associated with the experiment.
+   * Set the actions associated with the experiment.
    *
-   * @param array $blocks Array of blocks associated with the experiment.
+   * @param array $actions
+   *   Array of actions associated with the experiment.
    */
-  public function setBlocks(array $blocks);
+  public function setActions(array $actions);
 
   /**
    * Returns the id of the algorithm plugin.
@@ -60,12 +61,12 @@ interface ExperimentInterface extends ConfigEntityInterface {
   public function setAlgorithmConfig($config);
 
   /**
-   * Add a block to the list of block of this experiment.
+   * Add an action to the list of this experiment's actions.
    *
-   * @param string $block
-   *   The plugin id of the block.
+   * @param string $action
+   *   The action id.
    */
-  public function addBlock($block);
+  public function addAction($action);
 
 
 }

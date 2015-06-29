@@ -57,7 +57,7 @@ class Experiment extends ConfigEntityBase implements ExperimentInterface {
    *
    * @var array
    */
-  public $blocks = array();
+  public $actions = array();
 
   /**
    * The id of the algorithm used by an experiment.
@@ -76,15 +76,15 @@ class Experiment extends ConfigEntityBase implements ExperimentInterface {
   /**
    * {@inheritdoc}
    */
-  public function getBlocks() {
-    return $this->blocks;
+  public function getActions() {
+    return $this->actions;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setBlocks(array $blocks) {
-    $this->blocks = $blocks;
+  public function setActions(array $actions) {
+    $this->actions = $actions;
   }
 
   /**
@@ -104,8 +104,8 @@ class Experiment extends ConfigEntityBase implements ExperimentInterface {
   /**
    * {@inheritdoc}
    */
-  public function addBlock($block) {
-    $this->blocks[] = $block;
+  public function addAction($action) {
+    $this->actions[] = $action;
   }
 
   /**
@@ -132,7 +132,7 @@ class Experiment extends ConfigEntityBase implements ExperimentInterface {
    * view mode separated by : sign.
    */
   public function createUniqueKeysForBlocks() {
-    $blocks = $this->getBlocks();
+    $blocks = $this->getActions();
     $keys = [];
     foreach ($blocks as $block) {
       $keys[] = ($block['view_mode']) ? $block['machine_name'] . '+' . $block['view_mode'] : $block['machine_name'];

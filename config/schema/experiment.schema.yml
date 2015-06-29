@@ -20,9 +20,9 @@ experiment.experiment.*:
       sequence:
         - type: string
           label: 'Algorithm setting'
-    blocks:
+    actions:
       type: sequence
-      label: 'Blocks'
+      label: 'Actions'
       sequence:
         - type: mapping
           label: 'Block'

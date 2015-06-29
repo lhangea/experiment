@@ -187,7 +187,7 @@ class ExperimentFormBase extends EntityForm {
       '#empty' => t('There are no items yet.'),
     ];
     if ($form_state->get(['variations_set', 'block_list', 'storage']) === NULL) {
-      $added_blocks = $experiment->getBlocks();
+      $added_blocks = $experiment->getActions();
       $form_state->set(['variations_set', 'block_list', 'storage'], $added_blocks);
     }
     else {
@@ -524,7 +524,7 @@ class ExperimentFormBase extends EntityForm {
       $element_name .= ($block['view_mode']) ? '+' . $block['view_mode'] : '';
       $added_blocks[$key]['selected_links'] = $form_state->getValue(['variations_set', 'blocks_list', 'hidden_values', $element_name]);
     }
-    $experiment->setBlocks($added_blocks);
+    $experiment->setActions($added_blocks);
     // Drupal already populated the form values in the entity object. Each
     // form field was saved as a public variable in the entity class. PHP
     // allows Drupal to do this even if the method is not defined ahead of

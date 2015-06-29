@@ -143,7 +143,7 @@ class ExperimentController implements ContainerInjectionInterface {
     if ($view_mode) {
       $config['view_mode'] = $view_mode;
     }
-    $blocks = $experiment->getBlocks();
+    $blocks = $experiment->getActions();
     $selected_links = [];
     foreach ($blocks as $block) {
       if ($block['machine_name'] == $plugin_id && $block['view_mode'] == $view_mode) {
@@ -192,7 +192,7 @@ class ExperimentController implements ContainerInjectionInterface {
    */
   public function experimentResults(ExperimentInterface $experiment) {
     $build = [];
-    $blocks = $experiment->getBlocks();
+    $blocks = $experiment->getActions();
     $results = $this->state->get('experiment.' . $experiment->id());
     $build['experiment_name'] = [
       '#markup' => '<h2>' . $this->t('Results for ') . '<em>' . $experiment->label() . '</em></h2>',
