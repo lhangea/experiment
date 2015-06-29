@@ -483,7 +483,12 @@ class ExperimentFormBase extends EntityForm {
       $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($this->getEntity());
       $algorithm->validateConfigurationForm($form, $algorithm_form_state);
       // Set errors back on the main form.
-      $form_state->setError($form['algorithm_fieldset']['settings']['form'], $algorithm_form_state->getErrors());
+      $errors = $algorithm_form_state->getErrors();
+      if (!empty($errors)) {
+        foreach ($errors as $element_id => $error) {
+          $form_state->setError($form['algorithm_fieldset']['settings']['form'][$element_id], $errors[$element_id]);
+        }
+      }
     }
 
     // At least 1 variation should be selected in an experiment.
@@ -503,11 +508,14 @@ class ExperimentFormBase extends EntityForm {
     $form_state->cleanValues();
     // The algorithm configuration is stored in the 'algorithm' key in the form,
     // pass that through form submission.
-    $algorithm_config = (new FormState())->setValues($form_state->getValue(['algorithm_fieldset', 'settings', 'form']));
-    $algorithm->submitConfigurationForm($form, $algorithm_config);
+    $algorithm_config_values = $form_state->getValue(['algorithm_fieldset', 'settings', 'form']);
+    if ($algorithm_config_values !== NULL) {
+      $algorithm_config = (new FormState())->setValues($form_state->getValue(['algorithm_fieldset', 'settings', 'form']));
+      $algorithm->submitConfigurationForm($form, $algorithm_config);
+      // Update the original form values.
+      $form_state->setValue(['algorithm_fieldset', 'settings', 'form'], $algorithm_config->getValues());
+    }
 
-    // Update the original form values.
-    $form_state->setValue(['algorithm_fieldset', 'settings', 'form'], $algorithm_config->getValues());
     $experiment->setAlgorithmConfig($algorithm->getConfiguration());
 
     $added_blocks = $form_state->get(['variations_set', 'block_list', 'storage']);
