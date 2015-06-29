@@ -13,18 +13,10 @@ use Drupal\experiment\ExperimentInterface;
 /**
  * Defines the experiment config entity.
  *
- *  - entity_keys: Specifies the class properties in which unique keys are
- *    stored for this entity type. Unique keys are properties which you know
- *    will be unique, and which the entity manager can use as unique in database
- *    queries.
- *  - links: entity URL definitions. These are mostly used for Field UI.
- *    Arbitrary keys can set here. For example, User sets cancel-form, while
- *    Node uses delete-form.
- *
  * @ConfigEntityType(
  *   id = "experiment",
  *   label = @Translation("Experiment"),
- *   admin_permission = "access content",
+ *   admin_permission = "administer experiments",
  *   handlers = {
  *     "access" = "Drupal\experiment\ExperimentAccessController",
  *     "list_builder" = "Drupal\experiment\Controller\ExperimentListBuilder",
