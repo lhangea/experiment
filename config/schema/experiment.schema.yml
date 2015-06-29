@@ -44,3 +44,6 @@ experiment.settings:
     use_cookies:
       type: boolean
       label: 'Use cookies'
+    server_side:
+      type: boolean
+      label: 'Do not use javascript for variation retrieval'

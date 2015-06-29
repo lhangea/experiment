@@ -41,6 +41,12 @@ class SettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('use_cookies'),
     );
 
+    $form['server_side'] = array(
+      '#type' => 'checkbox',
+      '#title' => $this->t('Don\'t use javascript for content retrieval.'),
+      '#default_value' => $config->get('server_side'),
+    );
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -50,6 +56,7 @@ class SettingsForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->config('experiment.settings')
       ->set('use_cookies', $form_state->getValue('use_cookies'))
+      ->set('server_side', $form_state->getValue('server_side'))
       ->save();
 
     parent::submitForm($form, $form_state);
