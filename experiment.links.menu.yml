@@ -4,9 +4,14 @@ entity.experiment.list:
   description: 'Manage experiments.'
   route_name: entity.experiment.list
 
+experiment.admin_config_split_testing:
+  route_name: experiment.admin_config_split_testing
+  parent: system.admin_config
+  title: 'Split testing'
+  description: 'Manage split testing experiments.'
+
 experiment.settings:
-  title: Experiments settings
-  parent: system.admin_config_system
-  description: 'Configure experiment settings.'
   route_name: experiment.settings
-  weight: 30
+  parent: experiment.admin_config_split_testing
+  title: 'Experiment'
+  description: 'General settings for experiments.'

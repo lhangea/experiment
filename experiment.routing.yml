@@ -76,11 +76,20 @@ experiment.results:
   requirements:
     _permission: 'access content'
 
+experiment.admin_config_split_testing:
+  path: '/admin/config/split-testing'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'Split testing'
+  requirements:
+    _permission: 'access administration pages'
+
 experiment.settings:
-  path: '/admin/config/system/experiment'
+  path: '/admin/config/split-testing/experiment'
   defaults:
     _form: 'Drupal\experiment\Form\SettingsForm'
     _title: 'Experiments'
   requirements:
     _permission: 'administer site configuration'
+
 
