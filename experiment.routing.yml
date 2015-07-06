@@ -52,7 +52,7 @@ experiment.block.admin_configure:
 experiment.select:
   path: '/experiment/{experiment}'
   defaults:
-    _controller: '\Drupal\experiment\Controller\ExperimentController::getBlockContent'
+    _controller: '\Drupal\experiment\Controller\BlockExperimentController::getBlockContent'
   requirements:
     _permission: 'access content'
     _method: GET
@@ -62,7 +62,7 @@ experiment.select:
 experiment.update:
   path: '/experiment/{experiment}'
   defaults:
-    _controller: '\Drupal\experiment\Controller\ExperimentController::updateExperimentResults'
+    _controller: '\Drupal\experiment\Controller\BlockExperimentController::updateExperimentResults'
   requirements:
     _permission: 'access content'
     _method: POST
@@ -71,7 +71,7 @@ experiment.update:
 experiment.results:
   path: '/admin/structure/experiment/{experiment}/results'
   defaults:
-    _controller: '\Drupal\experiment\Controller\ExperimentController::experimentResults'
+    _controller: '\Drupal\experiment\Controller\BlockExperimentController::experimentResults'
     _title: 'Experiment results'
   requirements:
     _permission: 'access content'

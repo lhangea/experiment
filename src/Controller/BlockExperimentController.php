@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\experiment\Controller\ExperimentController.
+ * Contains \Drupal\experiment\Controller\BlockExperimentController.
  */
 
 namespace Drupal\experiment\Controller;
@@ -22,7 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class ExperimentController implements ContainerInjectionInterface {
+class BlockExperimentController implements ContainerInjectionInterface {
 
   use StringTranslationTrait;
 
@@ -63,7 +63,7 @@ class ExperimentController implements ContainerInjectionInterface {
   protected $configFactory;
 
   /**
-   * Constructs an ExperimentController object.
+   * Constructs an BlockExperimentController object.
    *
    * @param \Drupal\Core\Block\BlockManagerInterface $block_manager
    *   The block manager.
@@ -151,9 +151,9 @@ class ExperimentController implements ContainerInjectionInterface {
       }
     }
     $selected_block = $this->blockManager->createInstance($plugin_id, $config);
-    $block_html = $selected_block->build();
+    $block_render_array = $selected_block->build();
     $response->setContent(JSON::encode([
-      'block_html' => $this->renderer->render($block_html),
+      'block_html' => $this->renderer->render($block_render_array),
       'selected_plugin' => $selected_plugin,
       'selected_links' => $selected_links,
     ]));
@@ -163,7 +163,7 @@ class ExperimentController implements ContainerInjectionInterface {
   }
 
   /**
-   * Update the experiment results when a seccess condition is met.
+   * Update the experiment results when a success condition is met.
    *
    * @param ExperimentInterface $experiment
    *   Experiment entity.
