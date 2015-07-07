@@ -22,7 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class BlockExperimentController implements ContainerInjectionInterface {
+class BlockExperimentController extends ExperimentBaseController implements ContainerInjectionInterface {
 
   use StringTranslationTrait;
 
@@ -32,13 +32,6 @@ class BlockExperimentController implements ContainerInjectionInterface {
    * @var \Drupal\Core\Block\BlockManagerInterface
    */
   protected $blockManager;
-
-  /**
-   * The multi armed bandit algorithm manager.
-   *
-   * @var \Drupal\experiment\MABAlgorithmInterface
-   */
-  protected $mabAlgorithmManager;
 
   /**
    * The renderer service.
@@ -58,11 +51,6 @@ class BlockExperimentController implements ContainerInjectionInterface {
   protected $pageCacheKillSwitch;
 
   /**
-   * @var \Drupal\Core\Config\ConfigFactoryInterface
-   */
-  protected $configFactory;
-
-  /**
    * Constructs an BlockExperimentController object.
    *
    * @param \Drupal\Core\Block\BlockManagerInterface $block_manager
@@ -79,12 +67,12 @@ class BlockExperimentController implements ContainerInjectionInterface {
    *   The config factory service.
    */
   public function __construct(BlockManagerInterface $block_manager, MABAlgorithmManagerInterface $mab_algorithm_manager, RendererInterface $renderer, StateInterface $state, ResponsePolicyInterface $page_cache_kill_switch, ConfigFactoryInterface $config_factory) {
+    parent::__construct($config_factory, $mab_algorithm_manager);
+
     $this->blockManager = $block_manager;
-    $this->mabAlgorithmManager = $mab_algorithm_manager;
     $this->renderer = $renderer;
     $this->state = $state;
     $this->pageCacheKillSwitch = $page_cache_kill_switch;
-    $this->configFactory = $config_factory;
   }
 
   /**
@@ -114,25 +102,12 @@ class BlockExperimentController implements ContainerInjectionInterface {
    *   JSON response for the given experiment.
    */
   public function getBlockContent(ExperimentInterface $experiment, Request $request) {
-    $config = $this->configFactory->get('experiment.settings');
-    $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($experiment);
     $response = new Response();
     // Prevent page caching for the current request.
     $this->pageCacheKillSwitch->trigger();
-    $plugin_id_from_cookie = $request->cookies->get($experiment->id());
-    if ($config->get('use_cookies') && $plugin_id_from_cookie) {
-      $selected_plugin = $plugin_id_from_cookie;
-    }
-    else {
-      $selected_plugin = $algorithm->select();
-      if ($config->get('use_cookies')) {
-        // Set a cookie for 2 minutes.
-        setrawcookie($experiment->id(), $selected_plugin, REQUEST_TIME + 120, '/');
-      }
-    }
+    $selected_plugin = $this->getActionId($experiment, $request);
     $plugin_id = $selected_plugin;
     $view_mode = FALSE;
-    $algorithm->updateAverageWithNullReward($selected_plugin);
     $index = strrpos($selected_plugin, '+');
     // If we are dealing with a 'content' block.
     if ($index !== FALSE) {
@@ -160,25 +135,6 @@ class BlockExperimentController implements ContainerInjectionInterface {
     $response->headers->set('Content-Type', 'application/json');
 
     return $response;
-  }
-
-  /**
-   * Update the experiment results when a success condition is met.
-   *
-   * @param ExperimentInterface $experiment
-   *   Experiment entity.
-   * @param Request $request
-   *   Request object.
-   *
-   * @return Response
-   *   201 response meaning successful POST request.
-   */
-  public function updateExperimentResults(ExperimentInterface $experiment, Request $request) {
-    $parameters = $request->request->all();
-    $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($experiment);
-    $algorithm->updateAverageWithReward($parameters['variation_id'], $parameters['reward']);
-
-    return new Response($this->t('The experiment results were successfully updated'), 201);
   }
 
   /**

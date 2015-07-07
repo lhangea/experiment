@@ -21,8 +21,7 @@ class UCB1 extends MABAlgorithmBase {
   /**
    * {@inheritdoc}
    */
-  public function select()
-  {
+  public function select() {
     foreach($this->counts as $plugin_id => $count) {
       // Display each variation at least once.
       if ($count == 0) {
@@ -43,16 +42,14 @@ class UCB1 extends MABAlgorithmBase {
   /**
    * {@inheritdoc}
    */
-  public function updateAverageWithNullReward($variation_id)
-  {
+  public function updateAverageWithNullReward($variation_id) {
     parent::updateAverageWithNullReward($variation_id);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function updateAverageWithReward($variation_id, $reward)
-  {
+  public function updateAverageWithReward($variation_id, $reward) {
     parent::updateAverageWithReward($variation_id, $reward);
   }
 
