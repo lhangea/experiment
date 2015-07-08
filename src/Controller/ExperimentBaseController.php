@@ -96,7 +96,7 @@ abstract class ExperimentBaseController {
       $selected_plugin = $algorithm->select();
       if ($this->config->get('use_cookies')) {
         // Set a cookie for 2 minutes.
-        setcookie($experiment->id(), $selected_plugin, REQUEST_TIME + 120000, '/');
+        setcookie($experiment->id(), $selected_plugin, REQUEST_TIME + 120, '/');
       }
     }
     // Update the mean value for a variation with 0 reward when selected.

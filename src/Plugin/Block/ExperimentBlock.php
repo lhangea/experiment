@@ -8,6 +8,7 @@
 namespace Drupal\experiment\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\Form\FormStateInterface;
@@ -34,6 +35,12 @@ class ExperimentBlock extends BlockBase implements ContainerFactoryPluginInterfa
    */
   protected $entityManager;
 
+  /**
+   * A config object for the experiments configuration.
+   *
+   * @var \Drupal\Core\Config\Config
+   */
+  protected $config;
 
   /**
    * @param array $configuration
@@ -47,10 +54,11 @@ class ExperimentBlock extends BlockBase implements ContainerFactoryPluginInterfa
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
    *   The entity manager.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, QueryFactory $query_factory, EntityManagerInterface $entity_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, QueryFactory $query_factory, EntityManagerInterface $entity_manager, ConfigFactoryInterface $config_factory) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityQueryFactory = $query_factory;
     $this->entityManager = $entity_manager;
+    $this->config = $config_factory->get('experiment.settings');
   }
 
   /**
@@ -63,7 +71,8 @@ class ExperimentBlock extends BlockBase implements ContainerFactoryPluginInterfa
       $plugin_id,
       $plugin_definition,
       $container->get('entity.query'),
-      $container->get('entity.manager')
+      $container->get('entity.manager'),
+      $container->get('config.factory')
     );
   }
 
