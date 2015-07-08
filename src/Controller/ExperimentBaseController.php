@@ -88,6 +88,7 @@ abstract class ExperimentBaseController {
   public function getActionId(ExperimentInterface $experiment, Request $request) {
     $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($experiment);
     $plugin_id_from_cookie = $request->cookies->get($experiment->id());
+
     if ($this->config->get('use_cookies') && $plugin_id_from_cookie) {
       $selected_plugin = $plugin_id_from_cookie;
     }
@@ -95,7 +96,7 @@ abstract class ExperimentBaseController {
       $selected_plugin = $algorithm->select();
       if ($this->config->get('use_cookies')) {
         // Set a cookie for 2 minutes.
-        setrawcookie($experiment->id(), $selected_plugin, REQUEST_TIME + 120, '/');
+        setcookie($experiment->id(), $selected_plugin, REQUEST_TIME + 120000, '/');
       }
     }
     // Update the mean value for a variation with 0 reward when selected.
