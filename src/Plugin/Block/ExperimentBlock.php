@@ -80,14 +80,21 @@ class ExperimentBlock extends BlockBase implements ContainerFactoryPluginInterfa
    * {@inheritdoc}
    */
   public function build() {
-    $build = [
-      '#attached' => [
-        'drupalSettings' => [
-          'experiment_id' => $this->configuration['experiment']['id'],
+    $display_server_side = $this->config->get('server_side');
+    if ($display_server_side) {
+      // Display the variations directly from the server side.
+    }
+    else {
+      // Display the variations from javascript.
+      $build = [
+        '#attached' => [
+          'drupalSettings' => [
+            'experiment_id' => $this->configuration['experiment']['id'],
+          ],
+          'library' => ['experiment/experiment.block'],
         ],
-        'library' => ['experiment/experiment.block'],
-      ],
-    ];
+      ];
+    }
     $build['#attributes']['class'][] = $this->configuration['experiment']['id'];
 
     return $build;

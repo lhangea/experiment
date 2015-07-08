@@ -8,7 +8,6 @@
 namespace Drupal\experiment\Controller;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\experiment\ExperimentInterface;
 use Drupal\experiment\MABAlgorithmManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -16,8 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class ExperimentBaseController {
-
-  use StringTranslationTrait;
 
   /**
    * General configuration for experiments.
