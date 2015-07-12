@@ -70,4 +70,36 @@ interface MABAlgorithmInterface extends ConfigurablePluginInterface, PluginFormI
    */
   public function updateAverageWithReward($variation_id, $reward);
 
+  /**
+   * Returns the number of times each variation has been shown.
+   *
+   * @return array
+   *   Associative array containing views information for all of the variations.
+   */
+  public function getViews();
+
+  /**
+   * Returns the mean reward for each variation.
+   *
+   * @return array
+   *   Associative array containing average rewards of all of the variations.
+   */
+  public function getValues();
+
+  /**
+   * Returns the mean reward for each variation.
+   *
+   * The difference between this method and the getValues() method is that this
+   * method returns the values that are computed each time when deciding which
+   * variation to show. These values are much more important than the values
+   * returned by the getValues() method which are raw values and might not be
+   * used directly in variation selection decision. However, if the algorithms
+   * does not use some special on the fly computed bonuses like UCB1 then the
+   * two methods should return the same values.
+   *
+   * @return array
+   *   Associative array containing average rewards of all of the variations.
+   */
+  public function getComputedValues();
+
 }

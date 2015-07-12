@@ -148,23 +148,30 @@ class BlockExperimentController extends ExperimentBaseController implements Cont
    */
   public function experimentResults(ExperimentInterface $experiment) {
     $build = [];
+    // Prepare the data for the page.
     $blocks = $experiment->getActions();
-    $results = $this->state->get('experiment.' . $experiment->id());
+    $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($experiment);
+    $views = $algorithm->getViews();
+    $values = $algorithm->getComputedValues();
+    // Builds the page content.
     $build['experiment_name'] = [
       '#markup' => '<h2>' . $this->t('Results for ') . '<em>' . $experiment->label() . '</em></h2>',
     ];
     $build['table'] = [
       '#type' => 'table',
-      '#header' => [$this->t('Block'), $this->t('View Mode'), $this->t('Impressions'), $this->t('Value')],
+      '#header' => [$this->t('Block'), $this->t('View Mode'), $this->t('Views'), $this->t('Value')],
     ];
     foreach ($blocks as $block) {
       $definition = $this->blockManager->getDefinition($block['machine_name']);
       $id = ($block['view_mode']) ? $block['machine_name'] . '+' . $block['view_mode'] : $block['machine_name'];
       $build['table'][$id][]['#markup'] = SafeMarkup::checkPlain($this->t($definition['admin_label']));
       $build['table'][$id][]['#markup'] = $block['view_mode'];
-      $build['table'][$id][]['#markup'] = $results['counts'][$id];
-      $build['table'][$id][]['#markup'] = $results['values'][$id];
+      $build['table'][$id][]['#markup'] = $views[$id];
+      $build['table'][$id][]['#markup'] = sprintf('%0.6f', $values[$id]);;
     }
+    $build['details'] = [
+      '#markup' => $this->t('The \'Value\' column represents the ratio between reward and number of visualisations for each variation. It is important to note that for some algorithms like UCB1 the \'Value\' parameter might be different than the ratio because the algorithms add on the fly bonuses to variations in order to optimize the results.'),
+    ];
 
     return $build;
   }

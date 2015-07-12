@@ -28,13 +28,7 @@ class UCB1 extends MABAlgorithmBase {
         return $plugin_id;
       }
     }
-
-    $ucb_values = [];
-    $total_counts = array_sum($this->counts);
-    foreach ($this->values as $plugin_id => $value) {
-      $bonus = sqrt(2 * log($total_counts)) / (float)$this->counts[$plugin_id];
-      $ucb_values[$plugin_id] = $value + $bonus;
-    }
+    $ucb_values = $this->getComputedValues();
 
     return $this->utility->getIndMax($ucb_values);
   }
@@ -42,15 +36,15 @@ class UCB1 extends MABAlgorithmBase {
   /**
    * {@inheritdoc}
    */
-  public function updateAverageWithNullReward($variation_id) {
-    parent::updateAverageWithNullReward($variation_id);
-  }
+  public function getComputedValues() {
+    $ucb_values = [];
+    $total_counts = array_sum($this->counts);
+    foreach ($this->values as $plugin_id => $value) {
+      $bonus = sqrt(2 * log($total_counts)) / (float)$this->counts[$plugin_id];
+      $ucb_values[$plugin_id] = $value + $bonus;
+    }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function updateAverageWithReward($variation_id, $reward) {
-    parent::updateAverageWithReward($variation_id, $reward);
+    return $ucb_values;
   }
 
 }

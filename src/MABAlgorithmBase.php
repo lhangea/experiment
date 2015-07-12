@@ -26,19 +26,19 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
   protected $state;
 
   /**
-   * The algorithm utility service.
+   * Contains useful methods for MAB algorithms.
    *
    * @var \Drupal\experiment\AlgorithmUtility
    */
   protected $utility;
 
   /**
-   * @var Array Holds the number of times each variation has been shown.
+   * @var array Holds the number of times each variation has been shown.
    */
   protected $counts;
 
   /**
-   * @var Array Holds the average reward for each variation.
+   * @var array Holds the average reward for each variation.
    */
   protected $values;
 
@@ -171,6 +171,27 @@ abstract class MABAlgorithmBase extends PluginBase implements MABAlgorithmInterf
       $this->values[$variation_id] += (1 / (float)$n) * (float)$reward;
       $this->saveResults();
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getViews() {
+    return $this->counts;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getValues() {
+    return $this->values;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getComputedValues() {
+    return $this->values;
   }
 
 }
