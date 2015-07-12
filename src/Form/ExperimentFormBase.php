@@ -328,7 +328,6 @@ class ExperimentFormBase extends EntityForm {
         'progress' => 'none',
       ],
     ];
-
     $form['algorithm_fieldset']['settings'] = [
       '#type' => 'container',
       '#attributes' => [
@@ -339,9 +338,9 @@ class ExperimentFormBase extends EntityForm {
     $form['algorithm_fieldset']['settings']['description'] = [
       '#markup' => $plugin_definition['description'],
     ];
-    // This part is may be different on every form rebuilt based on the
-    // selected algorithm.
-    $form['algorithm_fieldset']['settings']['form'] = $algorithm->buildConfigurationForm([], $form_state);
+    if ($form_state->getValue(['algorithm_fieldset', 'algorithm'])) {
+      $form['algorithm_fieldset']['settings']['form'] = $algorithm->buildConfigurationForm([], $form_state);
+    }
 
     return $form;
   }
@@ -474,27 +473,31 @@ class ExperimentFormBase extends EntityForm {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
-
-    // Pass the input values of the algorithm configuration form to the
-    // algorithm plugin 'validateConfigurationForm' method.
-    $algorithm_config = $form_state->getValue(['algorithm_fieldset', 'settings', 'form']);
-    if ($algorithm_config != NULL) {
-      $algorithm_form_state = (new FormState())->setValues($algorithm_config);
-      $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($this->getEntity());
-      $algorithm->validateConfigurationForm($form, $algorithm_form_state);
-      // Set errors back on the main form.
-      $errors = $algorithm_form_state->getErrors();
-      if (!empty($errors)) {
-        foreach ($errors as $element_id => $error) {
-          $form_state->setError($form['algorithm_fieldset']['settings']['form'][$element_id], $errors[$element_id]);
+    // @todo validateForm method should not be called on ajax events...
+    $triggering_element = $form_state->getTriggeringElement();
+    // Only validate if the function is not triggered by an ajax callback.
+    if ($triggering_element['#type'] != 'select') {
+      // Pass the input values of the algorithm configuration form to the
+      // algorithm plugin 'validateConfigurationForm' method.
+      $algorithm_config = $form_state->getValue(['algorithm_fieldset', 'settings', 'form']);
+      if ($algorithm_config != NULL) {
+        $algorithm_form_state = (new FormState())->setValues($algorithm_config);
+        $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($this->getEntity());
+        $algorithm->validateConfigurationForm($form, $algorithm_form_state);
+        // Set errors back on the main form.
+        $errors = $algorithm_form_state->getErrors();
+        if (!empty($errors)) {
+          foreach ($errors as $element_id => $error) {
+            $form_state->setError($form['algorithm_fieldset']['settings']['form'][$element_id], $errors[$element_id]);
+          }
         }
       }
-    }
 
-    // At least 1 variation should be selected in an experiment.
-    $blocks = $form_state->get(['variations_set', 'block_list', 'storage']);
-    if (empty($blocks)) {
-      $form_state->setError($form['variations_set']['blocks'], $this->t('You need to add at least 1 variation to the experiment'));
+      // At least 1 variation should be selected in an experiment.
+      $blocks = $form_state->get(['variations_set', 'block_list', 'storage']);
+      if (empty($blocks)) {
+        $form_state->setError($form['variations_set']['blocks'], $this->t('You need to add at least 1 variation to the experiment'));
+      }
     }
   }
 
