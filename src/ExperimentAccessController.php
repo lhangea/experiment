@@ -7,6 +7,7 @@
 
 namespace Drupal\experiment;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityAccessControlHandler;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountInterface;
@@ -20,11 +21,8 @@ class ExperimentAccessController extends EntityAccessControlHandler {
    * {@inheritdoc}
    */
   public function checkAccess(EntityInterface $entity, $operation, $langcode, AccountInterface $account) {
-    if ($operation == 'view') {
-      return TRUE;
-    }
-
-    return parent::checkAccess($entity, $operation, $langcode, $account);
+    // For 'update' and 'delete' operations use the same permission.
+    return AccessResult::allowedIf($account->hasPermission('administer experiments'))->cachePerPermissions();
   }
 
 }

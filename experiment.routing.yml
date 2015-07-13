@@ -1,12 +1,10 @@
-# When 'experiment' permission is created modify _permission
-# with _entity_access key.
 entity.experiment.list:
   path: '/admin/structure/experiment'
   defaults:
     _entity_list: 'experiment'
     _title: 'Experiments'
   requirements:
-    _permission: 'access content'
+    _permission: 'administration experiments'
   options:
     _admin_route: TRUE
 
@@ -16,7 +14,7 @@ entity.experiment.add_form:
     _entity_form: experiment.add
     _title: 'Add experiment'
   requirements:
-    _permission: 'access content'
+    _entity_create_access: experiment
   options:
     _admin_route: TRUE
 
@@ -26,7 +24,7 @@ entity.experiment.edit_form:
     _entity_form: experiment.edit
     _title: 'Edit experiment'
   requirements:
-    _permission: 'access content'
+    _entity_access: 'experiment.update'
   options:
     _admin_route: TRUE
 
@@ -36,7 +34,7 @@ entity.experiment.delete_form:
     _entity_form: experiment.delete
     _title: 'Delete experiment'
   requirements:
-    _permission: 'access content'
+    _entity_access: 'experiment.delete'
   options:
     _admin_route: TRUE
 
@@ -46,8 +44,7 @@ experiment.block.admin_configure:
     _form: '\Drupal\experiment\Form\BlockPreviewForm'
     _title: 'Configure success condition for block'
   requirements:
-    _permission: 'access content'
-    # here we need something more like _permission: 'access experiments'
+    _entity_access: 'experiment.update'
 
 experiment.select:
   path: '/experiment/{experiment}'
@@ -74,7 +71,7 @@ experiment.results:
     _controller: '\Drupal\experiment\Controller\BlockExperimentController::experimentResults'
     _title: 'Experiment results'
   requirements:
-    _permission: 'access content'
+    _permission: 'administration experiments'
 
 experiment.admin_config_split_testing:
   path: '/admin/config/split-testing'

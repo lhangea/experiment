@@ -170,7 +170,7 @@ class BlockExperimentController extends ExperimentBaseController implements Cont
       $build['table'][$id][]['#markup'] = sprintf('%0.6f', $values[$id]);;
     }
     $build['details'] = [
-      '#markup' => $this->t('The \'Value\' column represents the ratio between reward and number of visualisations for each variation. It is important to note that for some algorithms like UCB1 the \'Value\' parameter might be different than the ratio because the algorithms add on the fly bonuses to variations in order to optimize the results.'),
+      '#markup' => $this->t('The \'Value\' column represents the ratio between total reward and number of visualisations for each variation. It is important to note that for some algorithms like UCB1 the \'Value\' parameter might be different from the ratio because the algorithms add on the fly bonuses to variations in order to optimize the results.'),
     ];
 
     return $build;

@@ -207,7 +207,7 @@ class ExperimentFormBase extends EntityForm {
       //   proper values (input type hidden modified by javascript) on rebuild
       //   but it doesn't. File a bug for this.
       $user_input = $form_state->getUserInput();
-      if ($user_input[$variable_name] != '') {
+      if (isset($user_input[$variable_name]) && $user_input[$variable_name] != '') {
         $form_state->setValue(['variations_set', 'blocks_list', 'hidden_values', $variable_name], $user_input[$variable_name]);
       }
       $row = [];
