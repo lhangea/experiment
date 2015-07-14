@@ -232,7 +232,7 @@ class ExperimentFormBase extends EntityForm {
         // we are creating a new experiment, so set an initial value so that not
         // link is selected.
         if ($selected_links === NULL) {
-          $selected_links = ['-1'];
+          $selected_links = '-1';
         }
       }
       $row[] = [
