@@ -223,14 +223,16 @@ class ExperimentFormBase extends EntityForm {
         // from the experiment storage.
         foreach ($added_blocks as $block) {
           if ($block['machine_name'] == $added_block['machine_name'] && $block['view_mode'] == $added_block['view_mode']) {
-            $selected_links = $block['selected_links'];
+            if (isset($block['selected_links'])) {
+              $selected_links = $block['selected_links'];
+            }
           }
         }
         // If the experiment doesn't have these settings neither, it means that
         // we are creating a new experiment, so set an initial value so that not
         // link is selected.
         if ($selected_links === NULL) {
-          $selected_links = [-1];
+          $selected_links = ['-1'];
         }
       }
       $row[] = [

@@ -30,10 +30,10 @@ experiment.experiment.*:
             machine_name:
               type: string
               label: 'Machine Name'
-            machine_name:
+            view_mode:
               type: string
               label: 'View Mode'
-            machine_name:
+            selected_links:
               type: string
               label: 'Selected links'
 

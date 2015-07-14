@@ -1,2 +1,2 @@
 use_cookies: true
-server_side: true
+server_side: false

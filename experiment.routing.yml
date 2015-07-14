@@ -4,7 +4,7 @@ entity.experiment.list:
     _entity_list: 'experiment'
     _title: 'Experiments'
   requirements:
-    _permission: 'administration experiments'
+    _permission: 'administer experiments'
   options:
     _admin_route: TRUE
 
@@ -44,7 +44,7 @@ experiment.block.admin_configure:
     _form: '\Drupal\experiment\Form\BlockPreviewForm'
     _title: 'Configure success condition for block'
   requirements:
-    _entity_access: 'experiment.update'
+    _permission: 'administer experiments'
 
 experiment.select:
   path: '/experiment/{experiment}'
@@ -88,5 +88,3 @@ experiment.settings:
     _title: 'Experiments'
   requirements:
     _permission: 'administer site configuration'
-
-
