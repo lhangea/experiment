@@ -8,6 +8,7 @@
 namespace Drupal\experiment\Form;
 
 use Drupal\Component\Serialization\Json;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Entity\Query\QueryFactory;
@@ -290,6 +291,96 @@ class ExperimentFormBase extends EntityForm {
         'wrapper' => 'blocks-list',
       ],
     ];
+    $attributes = [
+      'class' => ['use-ajax'],
+      'data-dialog-type' => 'modal',
+      'data-dialog-options' => Json::encode([
+        'width' => 'auto',
+      ]),
+    ];
+    $add_button_attributes = NestedArray::mergeDeep($attributes, [
+      'class' => [
+        'button',
+        'button--small',
+        'button-action',
+      ]
+    ]);
+    $form['display_variant_section'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Display variants'),
+      '#open' => TRUE,
+    ];
+    $form['display_variant_section']['add_new_page'] = [
+      '#type' => 'link',
+      '#title' => $this->t('Add new variation'),
+      '#url' => Url::fromRoute('page_manager.display_variant_select', [
+        'page' => 1,
+//        'page' => $thi1s->entity->id(),
+      ]),
+      '#attributes' => $add_button_attributes,
+      '#attached' => [
+        'library' => [
+          'core/drupal.ajax',
+        ],
+      ],
+    ];
+    $form['display_variant_section']['display_variants'] = [
+      '#type' => 'table',
+      '#header' => [
+        $this->t('Label'),
+        $this->t('Plugin'),
+        $this->t('Weight'),
+        $this->t('Operations'),
+      ],
+      '#empty' => $this->t('There are no display variants.'),
+      '#tabledrag' => [[
+        'action' => 'order',
+        'relationship' => 'sibling',
+        'group' => 'display-variant-weight',
+      ]],
+    ];
+//    $variants = $this->entity->getVariants();
+    $variants = array();
+    foreach ($variants as $display_variant_id => $display_variant) {
+      $row = [
+        '#attributes' => [
+          'class' => ['draggable'],
+        ],
+      ];
+      $row['label']['#markup'] = $display_variant->label();
+      $row['id']['#markup'] = $display_variant->adminLabel();
+      $row['weight'] = [
+        '#type' => 'weight',
+        '#default_value' => $display_variant->getWeight(),
+        '#title' => $this->t('Weight for @display_variant display variant', ['@display_variant' => $display_variant->label()]),
+        '#title_display' => 'invisible',
+        '#attributes' => [
+          'class' => ['display-variant-weight'],
+        ],
+      ];
+      $operations = [];
+      $operations['edit'] = [
+        'title' => $this->t('Edit'),
+        'url' => Url::fromRoute('page_manager.display_variant_edit', [
+          'page' => 1,
+//          'page' => $this->entity->id(),
+          'display_variant_id' => $display_variant_id,
+        ]),
+      ];
+      $operations['delete'] = [
+        'title' => $this->t('Delete'),
+        'url' => Url::fromRoute('page_manager.display_variant_delete', [
+          'page' => 1,
+//          'page' => $this->entity->id(),
+          'display_variant_id' => $display_variant_id,
+        ]),
+      ];
+      $row['operations'] = [
+        '#type' => 'operations',
+        '#links' => $operations,
+      ];
+      $form['display_variant_section']['display_variants'][$display_variant_id] = $row;
+    }
 
     // Get a list of all algorithm plugins.
     $algorithms = [];
