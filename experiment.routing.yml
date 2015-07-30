@@ -88,3 +88,11 @@ experiment.settings:
     _title: 'Experiments'
   requirements:
     _permission: 'administer site configuration'
+
+entity.page.add_form_split_test:
+  path: '/admin/structure/page_manager/add_split_test'
+  defaults:
+    _controller: '\Drupal\experiment\Controller\PageExperimentController::createPageForm'
+    _title: 'Add new page'
+  requirements:
+    _entity_create_access: page

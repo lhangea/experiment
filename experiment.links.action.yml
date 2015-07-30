@@ -3,3 +3,9 @@ experiment.add_action:
   title: 'Add new experiment'
   appears_on:
     - entity.experiment.list
+
+entity.page.add_form_split_testing:
+  route_name: entity.page.add_form_split_test
+  title: 'Add test'
+  appears_on:
+    - 'page_manager.page_list'
