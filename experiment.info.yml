@@ -2,3 +2,5 @@ name: Experiment
 description: 'Allows administrators to create experiment using multi-armed bandit algorithms.'
 type: module
 core: 8.x
+dependencies:
+  - page_manager
