@@ -109,13 +109,19 @@ class ExperimentFormBase extends EntityForm {
     ];
 
     // Build the list of blocks.
-    $blocks = [];
-    $definitions = $this->blockManager->getDefinitions();
-    foreach ($definitions as $plugin_id => $plugin_definition) {
-      // Don't add the placeholder block.
-      if ($plugin_id != 'experiment_block') {
-        $blocks[$plugin_id] = $plugin_definition['admin_label'];
-      }
+//    $blocks = [];
+//    $definitions = $this->blockManager->getDefinitions();
+//    foreach ($definitions as $plugin_id => $plugin_definition) {
+//      // Don't add the placeholder block.
+//      if ($plugin_id != 'experiment_block') {
+//        $blocks[$plugin_id] = $plugin_definition['admin_label'];
+//      }
+//    }
+    // Pages.
+    $options = [];
+    $pages = $this->entityManager->getStorage('page')->loadMultiple();
+    foreach ($pages as $page) {
+      $options[$page->id()] = $page->label();
     }
 
     $form['variations_set'] = [
@@ -124,263 +130,173 @@ class ExperimentFormBase extends EntityForm {
     ];
     $form['variations_set']['blocks'] = [
       '#type' => 'select',
-      '#title' => $this->t('Block'),
-      '#options' => $blocks,
-      '#empty_option' => $this->t('Select a new block'),
-      '#ajax' => [
-        'callback' => [$this, 'ajaxViewModesCallback'],
-        'wrapper' => 'view-modes',
-        'effect' => 'fade',
-        'progress' => ['type' => 'none'],
-      ],
+      '#title' => $this->t('Select the page to test'),
+      '#options' => $options,
+      '#empty_option' => $this->t('- page to test -'),
+//      '#ajax' => [
+//        'callback' => [$this, 'ajaxViewModesCallback'],
+//        'wrapper' => 'view-modes',
+//        'effect' => 'fade',
+//        'progress' => ['type' => 'none'],
+//      ],
     ];
     // @todo This doesn't return the right results ATM but it is being worked on
     //   and should be solved soon.
-    $options = $this->entityManager->getViewModeOptions('block_content');
-    $selected_block = $form_state->getValue(['variations_set', 'blocks']);
+//    $options = $this->entityManager->getViewModeOptions('block_content');
+//    $selected_block = $form_state->getValue(['variations_set', 'blocks']);
     // Check if the block has view modes or not.
     // @todo Find a better way to check this.
-    $has_view_modes = substr($selected_block, 0, strlen('block_content:')) === 'block_content:';
-    $form['variations_set']['container'] = [
-      '#type' => 'container',
-      '#attributes' => [
-        'id' => 'view-modes',
-      ],
-    ];
+//    $has_view_modes = substr($selected_block, 0, strlen('block_content:')) === 'block_content:';
+//    $form['variations_set']['container'] = [
+//      '#type' => 'container',
+//      '#attributes' => [
+//        'id' => 'view-modes',
+//      ],
+//    ];
     // Display the view mode selector only if the block has view modes
     // and if it has more than 1 view mode.
-    $form['variations_set']['container']['view_modes'] = [
-      '#type' => 'select',
-      '#title' => $this->t('View Mode'),
-      '#options' => $options,
-      '#description' => $this->t('Output the block in this view mode.'),
-      '#access' => (count($options) > 1 && $has_view_modes),
-    ];
-    $form['variations_set']['add_block'] = [
-      '#type' => 'submit',
-      '#button_type' => 'primary',
-      '#submit' => [[$this, 'addBlockSubmitCallback']],
-      '#validate' => [[$this, 'addBlockValidateCallback']],
-      '#ajax' => [
-        'callback' => [$this, 'ajaxUpdateBlocksTable'],
-        'wrapper' => 'blocks-list',
-        'effect' => 'fade',
-        'progress' => 'none',
-      ],
-      '#limit_validation_errors' => [['variations_set']],
-      '#attributes' => [
-        'class' => ['add-block-button'] ,
-      ],
-      '#attached' => [
-        'library' => ['experiment/experiment.admin'],
-      ],
-      '#value' => $this->t('Add Block'),
-    ];
-    $form['variations_set']['blocks_list'] = [
-      '#type' => 'container',
-      '#attributes' => [
-        'id' => 'blocks-list',
-      ],
-    ];
-    $form['variations_set']['blocks_list']['table'] = [
-      '#type' => 'table',
-      '#header' => [$this->t('Title'), $this->t('Machine Name'), $this->t('View Mode'), $this->t('Operations'), ''],
-      '#empty' => t('There are no items yet.'),
-    ];
-    if ($form_state->get(['variations_set', 'block_list', 'storage']) === NULL) {
-      $added_blocks = $experiment->getActions();
-      $form_state->set(['variations_set', 'block_list', 'storage'], $added_blocks);
-    }
-    else {
-      $added_blocks = $form_state->get(['variations_set', 'block_list', 'storage']);
-    }
-    $form['variations_set']['blocks_list']['hidden_values'] = [
-      '#type' => 'container',
-      '#attributes' => [
-        'id' => 'hidden-values',
-      ],
-    ];
-    // Add the selected blocks to the table.
-    foreach ($added_blocks as $id => $added_block) {
-      $variable_name = $added_block['machine_name'];
-      $variable_name .= ($added_block['view_mode']) ? '+' . $added_block['view_mode'] : '';
-      // @todo This is a workaround. Usually the form state should contain the
-      //   proper values (input type hidden modified by javascript) on rebuild
-      //   but it doesn't. File a bug for this.
-      $user_input = $form_state->getUserInput();
-      if (isset($user_input[$variable_name]) && $user_input[$variable_name] != '') {
-        $form_state->setValue(['variations_set', 'blocks_list', 'hidden_values', $variable_name], $user_input[$variable_name]);
-      }
-      $row = [];
-      $row[]['#markup'] = $blocks[$added_block['machine_name']];
-      $row[]['#markup'] = $added_block['machine_name'];
-      $row[]['#markup'] = $added_block['view_mode'];
-
-      $selected_links = $form_state->getValue(['variations_set', 'blocks_list', 'hidden_values', $variable_name]);
-      // @todo Find a better way to store the values in the config entity.
-      //   Separate the success condition configuration from selected blocks.
-      if ($selected_links === NULL) {
-        // If the values are not in the form state, try loading them
-        // from the experiment storage.
-        foreach ($added_blocks as $block) {
-          if ($block['machine_name'] == $added_block['machine_name'] && $block['view_mode'] == $added_block['view_mode']) {
-            if (isset($block['selected_links'])) {
-              $selected_links = $block['selected_links'];
-            }
-          }
-        }
-        // If the experiment doesn't have these settings neither, it means that
-        // we are creating a new experiment, so set an initial value so that not
-        // link is selected.
-        if ($selected_links === NULL) {
-          $selected_links = '-1';
-        }
-      }
-      $row[] = [
-        '#type' => 'operations',
-        '#links' => [
-          'add_success_condition' => [
-            'title' => $this->t('Configure'),
-            'url' => Url::fromRoute('experiment.block.admin_configure', [
-              'plugin_id' => $added_block['machine_name'],
-              'view_mode' => ($added_block['view_mode']) ? $added_block['view_mode'] : 'none',
-              'selected_links' => Json::encode($selected_links),
-            ]),
-            'attributes' => [
-              'class' => ['use-ajax'],
-              'data-dialog-type' => 'modal',
-              'data-dialog-options' => Json::encode([
-                'width' => 700,
-              ]),
-            ],
-          ],
-        ],
-      ];
-      // Remove button.
-      $row[] = [
-        '#type' => 'submit',
-        '#button_type' => 'danger',
-        '#submit' => [[$this, 'removeBlockSubmitCallback']],
-        '#ajax' => [
-          'callback' => [$this, 'ajaxUpdateBlocksTable'],
-          'wrapper' => 'blocks-list',
-          'effect' => 'fade',
-          'progress' => 'none',
-        ],
-        '#limit_validation_errors' => [['variations_set', 'blocks_list', 'table']],
-        '#value' => $this->t('Remove'),
-        // We need to set different name for every button otherwise the
-        // triggering element is wrongly identified.
-        '#name' => $added_block['machine_name'] . '+' . $added_block['view_mode'],
-        '#block_id' => $added_block['machine_name'],
-        '#block_view_mode' => $added_block['view_mode']
-      ];
-      $form['variations_set']['blocks_list']['table'][$id] = $row;
-      $form['variations_set']['blocks_list']['hidden_values'][$variable_name] = [
-        '#type' => 'hidden',
-        '#default_value' => $selected_links,
-        '#name' => $variable_name,
-      ];
-    }
-
-    $form['variations_set']['unused'] = [
-      '#type' => 'textfield',
-      '#ajax' => [
-        'callback' => [$this, 'ajaxUpdateBlocksTable'],
-        'event' => 'change',
-        'wrapper' => 'blocks-list',
-      ],
-    ];
-    $attributes = [
-      'class' => ['use-ajax'],
-      'data-dialog-type' => 'modal',
-      'data-dialog-options' => Json::encode([
-        'width' => 'auto',
-      ]),
-    ];
-    $add_button_attributes = NestedArray::mergeDeep($attributes, [
-      'class' => [
-        'button',
-        'button--small',
-        'button-action',
-      ]
-    ]);
-    $form['display_variant_section'] = [
-      '#type' => 'details',
-      '#title' => $this->t('Display variants'),
-      '#open' => TRUE,
-    ];
-    $form['display_variant_section']['add_new_page'] = [
-      '#type' => 'link',
-      '#title' => $this->t('Add new variation'),
-      '#url' => Url::fromRoute('page_manager.display_variant_select', [
-        'page' => 1,
-//        'page' => $thi1s->entity->id(),
-      ]),
-      '#attributes' => $add_button_attributes,
-      '#attached' => [
-        'library' => [
-          'core/drupal.ajax',
-        ],
-      ],
-    ];
-    $form['display_variant_section']['display_variants'] = [
-      '#type' => 'table',
-      '#header' => [
-        $this->t('Label'),
-        $this->t('Plugin'),
-        $this->t('Weight'),
-        $this->t('Operations'),
-      ],
-      '#empty' => $this->t('There are no display variants.'),
-      '#tabledrag' => [[
-        'action' => 'order',
-        'relationship' => 'sibling',
-        'group' => 'display-variant-weight',
-      ]],
-    ];
-//    $variants = $this->entity->getVariants();
-    $variants = array();
-    foreach ($variants as $display_variant_id => $display_variant) {
-      $row = [
-        '#attributes' => [
-          'class' => ['draggable'],
-        ],
-      ];
-      $row['label']['#markup'] = $display_variant->label();
-      $row['id']['#markup'] = $display_variant->adminLabel();
-      $row['weight'] = [
-        '#type' => 'weight',
-        '#default_value' => $display_variant->getWeight(),
-        '#title' => $this->t('Weight for @display_variant display variant', ['@display_variant' => $display_variant->label()]),
-        '#title_display' => 'invisible',
-        '#attributes' => [
-          'class' => ['display-variant-weight'],
-        ],
-      ];
-      $operations = [];
-      $operations['edit'] = [
-        'title' => $this->t('Edit'),
-        'url' => Url::fromRoute('page_manager.display_variant_edit', [
-          'page' => 1,
-//          'page' => $this->entity->id(),
-          'display_variant_id' => $display_variant_id,
-        ]),
-      ];
-      $operations['delete'] = [
-        'title' => $this->t('Delete'),
-        'url' => Url::fromRoute('page_manager.display_variant_delete', [
-          'page' => 1,
-//          'page' => $this->entity->id(),
-          'display_variant_id' => $display_variant_id,
-        ]),
-      ];
-      $row['operations'] = [
-        '#type' => 'operations',
-        '#links' => $operations,
-      ];
-      $form['display_variant_section']['display_variants'][$display_variant_id] = $row;
-    }
+//    $form['variations_set']['container']['view_modes'] = [
+//      '#type' => 'select',
+//      '#title' => $this->t('View Mode'),
+//      '#options' => $options,
+//      '#description' => $this->t('Output the block in this view mode.'),
+//      '#access' => (count($options) > 1 && $has_view_modes),
+//    ];
+//    $form['variations_set']['add_block'] = [
+//      '#type' => 'submit',
+//      '#button_type' => 'primary',
+//      '#submit' => [[$this, 'addBlockSubmitCallback']],
+//      '#validate' => [[$this, 'addBlockValidateCallback']],
+//      '#ajax' => [
+//        'callback' => [$this, 'ajaxUpdateBlocksTable'],
+//        'wrapper' => 'blocks-list',
+//        'effect' => 'fade',
+//        'progress' => 'none',
+//      ],
+//      '#limit_validation_errors' => [['variations_set']],
+//      '#attributes' => [
+//        'class' => ['add-block-button'] ,
+//      ],
+//      '#attached' => [
+//        'library' => ['experiment/experiment.admin'],
+//      ],
+//      '#value' => $this->t('Add Block'),
+//    ];
+//    $form['variations_set']['blocks_list'] = [
+//      '#type' => 'container',
+//      '#attributes' => [
+//        'id' => 'blocks-list',
+//      ],
+//    ];
+//    $form['variations_set']['blocks_list']['table'] = [
+//      '#type' => 'table',
+//      '#header' => [$this->t('Title'), $this->t('Machine Name'), $this->t('View Mode'), $this->t('Operations'), ''],
+//      '#empty' => t('There are no items yet.'),
+//    ];
+//    if ($form_state->get(['variations_set', 'block_list', 'storage']) === NULL) {
+//      $added_blocks = $experiment->getActions();
+//      $form_state->set(['variations_set', 'block_list', 'storage'], $added_blocks);
+//    }
+//    else {
+//      $added_blocks = $form_state->get(['variations_set', 'block_list', 'storage']);
+//    }
+//    $form['variations_set']['blocks_list']['hidden_values'] = [
+//      '#type' => 'container',
+//      '#attributes' => [
+//        'id' => 'hidden-values',
+//      ],
+//    ];
+//    // Add the selected blocks to the table.
+//    foreach ($added_blocks as $id => $added_block) {
+//      $variable_name = $added_block['machine_name'];
+//      $variable_name .= ($added_block['view_mode']) ? '+' . $added_block['view_mode'] : '';
+//      // @todo This is a workaround. Usually the form state should contain the
+//      //   proper values (input type hidden modified by javascript) on rebuild
+//      //   but it doesn't. File a bug for this.
+//      $user_input = $form_state->getUserInput();
+//      if (isset($user_input[$variable_name]) && $user_input[$variable_name] != '') {
+//        $form_state->setValue(['variations_set', 'blocks_list', 'hidden_values', $variable_name], $user_input[$variable_name]);
+//      }
+//      $row = [];
+//      $row[]['#markup'] = $blocks[$added_block['machine_name']];
+//      $row[]['#markup'] = $added_block['machine_name'];
+//      $row[]['#markup'] = $added_block['view_mode'];
+//
+//      $selected_links = $form_state->getValue(['variations_set', 'blocks_list', 'hidden_values', $variable_name]);
+//      // @todo Find a better way to store the values in the config entity.
+//      //   Separate the success condition configuration from selected blocks.
+//      if ($selected_links === NULL) {
+//        // If the values are not in the form state, try loading them
+//        // from the experiment storage.
+//        foreach ($added_blocks as $block) {
+//          if ($block['machine_name'] == $added_block['machine_name'] && $block['view_mode'] == $added_block['view_mode']) {
+//            if (isset($block['selected_links'])) {
+//              $selected_links = $block['selected_links'];
+//            }
+//          }
+//        }
+//        // If the experiment doesn't have these settings neither, it means that
+//        // we are creating a new experiment, so set an initial value so that not
+//        // link is selected.
+//        if ($selected_links === NULL) {
+//          $selected_links = '-1';
+//        }
+//      }
+//      $row[] = [
+//        '#type' => 'operations',
+//        '#links' => [
+//          'add_success_condition' => [
+//            'title' => $this->t('Configure'),
+//            'url' => Url::fromRoute('experiment.block.admin_configure', [
+//              'plugin_id' => $added_block['machine_name'],
+//              'view_mode' => ($added_block['view_mode']) ? $added_block['view_mode'] : 'none',
+//              'selected_links' => Json::encode($selected_links),
+//            ]),
+//            'attributes' => [
+//              'class' => ['use-ajax'],
+//              'data-dialog-type' => 'modal',
+//              'data-dialog-options' => Json::encode([
+//                'width' => 700,
+//              ]),
+//            ],
+//          ],
+//        ],
+//      ];
+//      // Remove button.
+//      $row[] = [
+//        '#type' => 'submit',
+//        '#button_type' => 'danger',
+//        '#submit' => [[$this, 'removeBlockSubmitCallback']],
+//        '#ajax' => [
+//          'callback' => [$this, 'ajaxUpdateBlocksTable'],
+//          'wrapper' => 'blocks-list',
+//          'effect' => 'fade',
+//          'progress' => 'none',
+//        ],
+//        '#limit_validation_errors' => [['variations_set', 'blocks_list', 'table']],
+//        '#value' => $this->t('Remove'),
+//        // We need to set different name for every button otherwise the
+//        // triggering element is wrongly identified.
+//        '#name' => $added_block['machine_name'] . '+' . $added_block['view_mode'],
+//        '#block_id' => $added_block['machine_name'],
+//        '#block_view_mode' => $added_block['view_mode']
+//      ];
+//      $form['variations_set']['blocks_list']['table'][$id] = $row;
+//      $form['variations_set']['blocks_list']['hidden_values'][$variable_name] = [
+//        '#type' => 'hidden',
+//        '#default_value' => $selected_links,
+//        '#name' => $variable_name,
+//      ];
+//    }
+//
+//    $form['variations_set']['unused'] = [
+//      '#type' => 'textfield',
+//      '#ajax' => [
+//        'callback' => [$this, 'ajaxUpdateBlocksTable'],
+//        'event' => 'change',
+//        'wrapper' => 'blocks-list',
+//      ],
+//    ];
 
     // Get a list of all algorithm plugins.
     $algorithms = [];

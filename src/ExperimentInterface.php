@@ -14,21 +14,21 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
  */
 interface ExperimentInterface extends ConfigEntityInterface {
 
-  /**
-   * Returns the list of actions associated with this experiment.
-   *
-   * @return array
-   *   The actions array.
-   */
-  public function getActions();
-
-  /**
-   * Set the actions associated with the experiment.
-   *
-   * @param array $actions
-   *   Array of actions associated with the experiment.
-   */
-  public function setActions(array $actions);
+//  /**
+//   * Returns the list of actions associated with this experiment.
+//   *
+//   * @return array
+//   *   The actions array.
+//   */
+//  public function getActions();
+//
+//  /**
+//   * Set the actions associated with the experiment.
+//   *
+//   * @param array $actions
+//   *   Array of actions associated with the experiment.
+//   */
+//  public function setActions(array $actions);
 
   /**
    * Returns the id of the algorithm plugin.
@@ -60,13 +60,13 @@ interface ExperimentInterface extends ConfigEntityInterface {
    */
   public function setAlgorithmConfig($config);
 
-  /**
-   * Add an action to the list of this experiment's actions.
-   *
-   * @param string $action
-   *   The action id.
-   */
-  public function addAction($action);
+//  /**
+//   * Add an action to the list of this experiment's actions.
+//   *
+//   * @param string $action
+//   *   The action id.
+//   */
+//  public function addAction($action);
 
 
 }
