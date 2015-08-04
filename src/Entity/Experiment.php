@@ -9,6 +9,7 @@ namespace Drupal\experiment\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\experiment\ExperimentInterface;
+use Drupal\page_manager\PageInterface;
 
 /**
  * Defines the experiment config entity.
@@ -81,19 +82,19 @@ class Experiment extends ConfigEntityBase implements ExperimentInterface {
    */
   public $algorithm_config;
 
-//  /**
-//   * {@inheritdoc}
-//   */
-//  public function getActions() {
-//    return $this->actions;
-//  }
-//
-//  /**
-//   * {@inheritdoc}
-//   */
-//  public function setActions(array $actions) {
-//    $this->actions = $actions;
-//  }
+  /**
+   * {@inheritdoc}
+   */
+  public function getPage() {
+    return $this->page;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setPage($page) {
+    $this->page = $page;
+  }
 
   /**
    * {@inheritdoc}

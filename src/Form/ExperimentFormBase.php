@@ -133,6 +133,7 @@ class ExperimentFormBase extends EntityForm {
       '#title' => $this->t('Select the page to test'),
       '#options' => $options,
       '#empty_option' => $this->t('- page to test -'),
+      '#default_value' => $experiment->getPage(),
 //      '#ajax' => [
 //        'callback' => [$this, 'ajaxViewModesCallback'],
 //        'wrapper' => 'view-modes',
@@ -503,10 +504,10 @@ class ExperimentFormBase extends EntityForm {
       }
 
       // At least 1 variation should be selected in an experiment.
-      $blocks = $form_state->get(['variations_set', 'block_list', 'storage']);
-      if (empty($blocks)) {
-        $form_state->setError($form['variations_set']['blocks'], $this->t('You need to add at least 1 variation to the experiment'));
-      }
+//      $blocks = $form_state->get(['variations_set', 'block_list', 'storage']);
+//      if (empty($blocks)) {
+//        $form_state->setError($form['variations_set']['blocks'], $this->t('You need to add at least 1 variation to the experiment'));
+//      }
     }
   }
 
@@ -530,13 +531,14 @@ class ExperimentFormBase extends EntityForm {
 
     $experiment->setAlgorithmConfig($algorithm->getConfiguration());
 
-    $added_blocks = $form_state->get(['variations_set', 'block_list', 'storage']);
-    foreach ($added_blocks as $key => $block) {
-      $element_name = $block['machine_name'];
-      $element_name .= ($block['view_mode']) ? '+' . $block['view_mode'] : '';
-      $added_blocks[$key]['selected_links'] = $form_state->getValue(['variations_set', 'blocks_list', 'hidden_values', $element_name]);
-    }
-    $experiment->setActions($added_blocks);
+//    $added_blocks = $form_state->get(['variations_set', 'block_list', 'storage']);
+//    foreach ($added_blocks as $key => $block) {
+//      $element_name = $block['machine_name'];
+//      $element_name .= ($block['view_mode']) ? '+' . $block['view_mode'] : '';
+//      $added_blocks[$key]['selected_links'] = $form_state->getValue(['variations_set', 'blocks_list', 'hidden_values', $element_name]);
+//    }
+    $experiment->setPage($form_state->getValue(['variations_set', 'blocks']));
+
     // Drupal already populated the form values in the entity object. Each
     // form field was saved as a public variable in the entity class. PHP
     // allows Drupal to do this even if the method is not defined ahead of
@@ -551,9 +553,12 @@ class ExperimentFormBase extends EntityForm {
     // @todo study the possibility of not resetting the experiment if there
     //   are no changes to the blocks list and to the algorithm configuration
     //   If it remains like this redirect to a confirmation page when updating.
+    $page = \Drupal::entityManager()->getStorage('page')->load($experiment->getPage());
+    $collection = $page->getPluginCollections();
+    $keys = array_keys($collection['display_variants']->getInstanceIds());
     $this->state->set('experiment.' . $experiment->id(), [
-        'counts' => array_fill_keys($experiment->createUniqueKeysForBlocks(), 0),
-        'values' => array_fill_keys($experiment->createUniqueKeysForBlocks(), 0),
+        'counts' => array_fill_keys($keys, 0),
+        'values' => array_fill_keys($keys, 0),
       ]
     );
 

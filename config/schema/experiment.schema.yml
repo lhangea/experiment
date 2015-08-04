@@ -20,22 +20,25 @@ experiment.experiment.*:
       sequence:
         - type: string
           label: 'Algorithm setting'
-    actions:
-      type: sequence
-      label: 'Actions'
-      sequence:
-        - type: mapping
-          label: 'Block'
-          mapping:
-            machine_name:
-              type: string
-              label: 'Machine Name'
-            view_mode:
-              type: string
-              label: 'View Mode'
-            selected_links:
-              type: string
-              label: 'Selected links'
+    page:
+      type: string
+      label: 'Page identifier'
+#    actions:
+#      type: sequence
+#      label: 'Actions'
+#      sequence:
+#        - type: mapping
+#          label: 'Block'
+#          mapping:
+#            machine_name:
+#              type: string
+#              label: 'Machine Name'
+#            view_mode:
+#              type: string
+#              label: 'View Mode'
+#            selected_links:
+#              type: string
+#              label: 'Selected links'
 
 experiment.settings:
   type: mapping

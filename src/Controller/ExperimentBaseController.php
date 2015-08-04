@@ -81,6 +81,8 @@ abstract class ExperimentBaseController {
    *
    * @return string
    *   The selected action id.
+   *
+   * @todo Move this into Experiment entity.
    */
   public function getActionId(ExperimentInterface $experiment, Request $request) {
     $algorithm = $this->mabAlgorithmManager->createInstanceFromExperiment($experiment);

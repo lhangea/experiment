@@ -8,8 +8,6 @@
 namespace Drupal\experiment;
 
 use Drupal\page_manager\PageExecutable;
-use Drupal\page_manager\Plugin\ContextAwareVariantInterface;
-use Drupal\page_manager\Plugin\PageAwareVariantInterface;
 
 /**
  * Represents a page entity during runtime execution.
@@ -20,21 +18,40 @@ class ExperimentPageExecutable extends PageExecutable {
    * {@inheritdoc}
    */
   public function selectDisplayVariant() {
-    if (!$this->selectedDisplayVariant) {
-      foreach ($this->page->getVariants() as $display_variant) {
-        if ($display_variant instanceof ContextAwareVariantInterface) {
-          $display_variant->setContexts($this->getContexts());
-        }
-        if ($display_variant->access()) {
-          if ($display_variant instanceof PageAwareVariantInterface) {
-            $display_variant->setExecutable($this);
-          }
-          $this->selectedDisplayVariant = $display_variant;
-          break;
-        }
-      }
+    if ($experiment_id = $this->getExperimentForPage()) {
+      // Display the variant selected by the algorithm.
+      $experiment = \Drupal::entityManager()->getStorage('experiment')->load($experiment_id);
+      $algorithm = \Drupal::getContainer()->get('plugin.manager.mab_algorithm')
+        ->createInstanceFromExperiment($experiment);
+
+      $selected_variant_id = $algorithm->select();
+      dsm(\Drupal::state()->get('experiment.besterest_experiment'));
+      dsm($selected_variant_id);
     }
-    return $this->selectedDisplayVariant;
+    else {
+      // Let the page manager module decide which variant to show.
+      return parent::selectDisplayVariant();
+    }
+  }
+
+  /**
+   * Determines if there is an experiment running on the current page.
+   *
+   * @return bool
+   *   TRUE if there is an experiment.
+   *   FALSE otherwise.
+   */
+  public function getExperimentForPage() {
+    $query = \Drupal::entityQuery('experiment')
+      ->condition('page', $this->getPage()->id(), '=');
+    $experiment_ids = $query->execute();
+
+    if (empty($experiment_ids)) {
+      return FALSE;
+    }
+    else {
+      return array_shift($experiment_ids);
+    }
   }
 
 }

@@ -20,6 +20,7 @@ class ExperimentServiceProvider extends ServiceProviderBase {
    * {@inheritdoc}
    */
   public function alter(ContainerBuilder $container) {
+    // Alter the executable factory service defined by the page manager module.
     $definition = $container->getDefinition('page_manager.executable_factory');
     $definition->setClass('Drupal\experiment\ExperimentPageExecutableFactory');
   }
