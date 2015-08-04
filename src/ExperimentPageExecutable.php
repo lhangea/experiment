@@ -25,8 +25,11 @@ class ExperimentPageExecutable extends PageExecutable {
         ->createInstanceFromExperiment($experiment);
 
       $selected_variant_id = $algorithm->select();
-      dsm(\Drupal::state()->get('experiment.besterest_experiment'));
-      dsm($selected_variant_id);
+      $algorithm->updateAverageWithNullReward($selected_variant_id);
+      $collection = $this->page->getPluginCollections();
+      $variant = $collection['display_variants']->get($selected_variant_id);
+      $variant->setExecutable($this);
+      return $variant;
     }
     else {
       // Let the page manager module decide which variant to show.
