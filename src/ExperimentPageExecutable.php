@@ -28,6 +28,7 @@ class ExperimentPageExecutable extends PageExecutable {
       $algorithm->updateAverageWithNullReward($selected_variant_id);
       $collection = $this->page->getPluginCollections();
       $variant = $collection['display_variants']->get($selected_variant_id);
+      $variant->setContexts($this->getContexts());
       $variant->setExecutable($this);
       return $variant;
     }
