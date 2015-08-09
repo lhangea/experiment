@@ -16,3 +16,10 @@ experiment.admin:
       js/select-link.js: {}
   dependencies:
     - core/jquery
+
+experiment.success-conditions:
+  version: VERSION
+  js:
+      js/success-conditions.js: {}
+  dependencies:
+    - core/jquery
