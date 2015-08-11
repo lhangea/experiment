@@ -58,7 +58,7 @@
                 return parent$.getSelector() + ' > ' + selector;
             }
 
-            $("*").click(function() {
+            $("*", context).once().click(function() {
                 var selector = $(this).getSelector();
                 console.log(selector + ' --> matches ' + $(selector).length + ' element');
                 return false;

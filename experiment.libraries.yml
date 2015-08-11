@@ -20,6 +20,25 @@ experiment.admin:
 experiment.success-conditions:
   version: VERSION
   js:
-      js/success-conditions.js: {}
+    # Core.
+#    js/success-conditions.js: {}
+    js/success-conditions-selection.js: {}
+    # Models.
+    js/models/AppModel.js: {}
+    # Views.
+    js/views/AppView.js: {}
+    # Other.
   dependencies:
     - core/jquery
+    - core/jquery.once
+    - core/underscore
+    - core/backbone
+    - core/jquery.form
+    - core/jquery.ui.position
+    - core/drupal
+    - core/drupal.displace
+    - core/drupal.form
+    - core/drupal.ajax
+    - core/drupal.debounce
+    - core/drupalSettings
+    - core/drupal.dialog
