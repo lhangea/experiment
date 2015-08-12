@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file
+ */
+use Drupal\experiment\ExperimentPageExecutable;
+
+/**
+ * Implements hook_page_attachments().
+ *
+ * Adds the experiment library to all the experiment pages and for any user who
+ * has the 'access in-place editing' permission.
+ */
+function experiment_page_attachments(array &$page) {
+  // Check for the permission.
+  $has_permission = \Drupal::currentUser()->hasPermission('administer experiments');
+  // Check if we are on an experiment page.
+  $experiment_id = ExperimentPageExecutable::getExperimentForPage(experiment_get_current_page_id());
+
+  if ($has_permission && $experiment_id) {
+    $page['#attached']['library'][] = 'experiment/experiment.success-conditions';
+  }
+}
+
+/**
+ * Returns the id of the page handled the by page manager.
+ *
+ * @return bool|mixed
+ */
+function experiment_get_current_page_id() {
+  $query = \Drupal::entityQuery('page')
+    ->condition('path', \Drupal::request()->getRequestUri(), '=');
+  $page_ids = $query->execute();
+
+  if (empty($page_ids)) {
+    return FALSE;
+  }
+  else {
+    return array_shift($page_ids);
+  }
+}

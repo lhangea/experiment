@@ -18,7 +18,7 @@ class ExperimentPageExecutable extends PageExecutable {
    * {@inheritdoc}
    */
   public function selectDisplayVariant() {
-    if ($experiment_id = $this->getExperimentForPage()) {
+    if ($experiment_id = self::getExperimentForPage($this->getPage()->id())) {
       // Display the variant selected by the algorithm.
       $experiment = \Drupal::entityManager()->getStorage('experiment')->load($experiment_id);
       $algorithm = \Drupal::getContainer()->get('plugin.manager.mab_algorithm')
@@ -45,9 +45,9 @@ class ExperimentPageExecutable extends PageExecutable {
    *   TRUE if there is an experiment.
    *   FALSE otherwise.
    */
-  public function getExperimentForPage() {
+  public static function getExperimentForPage($page_id) {
     $query = \Drupal::entityQuery('experiment')
-      ->condition('page', $this->getPage()->id(), '=');
+      ->condition('page', $page_id, '=');
     $experiment_ids = $query->execute();
 
     if (empty($experiment_ids)) {
