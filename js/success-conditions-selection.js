@@ -55,6 +55,26 @@
       el: bodyElement,
       model: new Drupal.experiment.AppModel()
     });
+
+    var pageModel = new Drupal.experiment.BaseModel({
+      el: "content",
+      pageID: "test",
+      pageInstanceID: "test",
+      id: "content"
+    });
+
+    // Initialization should only be called once. Use Underscore's once method
+    // to get a one-time use version of the function.
+    //var initContextualLink = _.once(function () {
+    //  var $links = $(contextualLink.el).find('#content');
+    //  console.log($links);
+    //  var contextualLinkView = new Drupal.experiment.ContextualLinkView($.extend({
+    //    el: $('<li class="experiment"><a href="" role="button" aria-pressed="false"></a></li>').prependTo($links),
+    //    model: pageModel,
+    //    appModel: Drupal.experiment.app.model
+    //  }, options));
+    //  entityModel.set('contextualLinkView', contextualLinkView);
+    //});
   }
 
 })(jQuery, _, Backbone, Drupal, drupalSettings, window.JSON, window.sessionStorage);
