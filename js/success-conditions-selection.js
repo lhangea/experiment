@@ -56,7 +56,7 @@
       model: new Drupal.experiment.AppModel()
     });
 
-    var pageModel = new Drupal.experiment.BaseModel({
+    var pageModel = new Drupal.experiment.PageModel({
       el: "content",
       pageID: "test",
       pageInstanceID: "test",
@@ -65,16 +65,17 @@
 
     // Initialization should only be called once. Use Underscore's once method
     // to get a one-time use version of the function.
-    //var initContextualLink = _.once(function () {
-    //  var $links = $(contextualLink.el).find('#content');
-    //  console.log($links);
-    //  var contextualLinkView = new Drupal.experiment.ContextualLinkView($.extend({
-    //    el: $('<li class="experiment"><a href="" role="button" aria-pressed="false"></a></li>').prependTo($links),
-    //    model: pageModel,
-    //    appModel: Drupal.experiment.app.model
-    //  }, options));
-    //  entityModel.set('contextualLinkView', contextualLinkView);
-    //});
+    var initContextualLink = _.once(function () {
+      var $links = $('#content');
+      var contextualLinkView = new Drupal.experiment.ContextualLinkView($.extend({
+        el: $('<li class="experiment"><a href="" role="button" aria-pressed="false"></a></li>').prependTo($links),
+        model: pageModel,
+        appModel: Drupal.experiment.app.model
+      }, options));
+      pageModel.set('contextualLinkView', contextualLinkView);
+    });
+
+    initContextualLink();
   }
 
 })(jQuery, _, Backbone, Drupal, drupalSettings, window.JSON, window.sessionStorage);

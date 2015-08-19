@@ -7,7 +7,7 @@
 
   "use strict";
 
-  Drupal.quickedit.BaseModel = Backbone.Model.extend(/** @lends Drupal.quickedit.BaseModel# */{
+  Drupal.experiment.BaseModel = Backbone.Model.extend(/** @lends Drupal.quickedit.BaseModel# */{
 
     /**
      * @constructs

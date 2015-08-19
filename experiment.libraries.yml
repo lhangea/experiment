@@ -25,8 +25,11 @@ experiment.success-conditions:
     js/success-conditions-selection.js: {}
     # Models.
     js/models/AppModel.js: {}
+    js/models/BaseModel.js: {}
+    js/models/PageModel.js: {}
     # Views.
     js/views/AppView.js: {}
+    js/views/ContextualLinkView.js: {}
     # Other.
   dependencies:
     - core/jquery
