@@ -127,8 +127,9 @@ class BlockExperimentController extends ExperimentBaseController implements Cont
     }
     $selected_block = $this->blockManager->createInstance($plugin_id, $config);
     $block_render_array = $selected_block->build();
+    $html = (string) $this->renderer->render($block_render_array);
     $response->setContent(JSON::encode([
-      'block_html' => $this->renderer->render($block_render_array),
+      'block_html' => $html,
       'selected_plugin' => $selected_plugin,
       'selected_links' => $selected_links,
     ]));

@@ -1,5 +1,5 @@
 experiment.experiment.*:
-  type: mapping
+  type: config_entity
   label: 'Experiment'
   mapping:
     id:
@@ -38,7 +38,7 @@ experiment.experiment.*:
               label: 'Selected links'
 
 experiment.settings:
-  type: mapping
+  type: config_object
   label: 'General experiment settings'
   mapping:
     use_cookies:
